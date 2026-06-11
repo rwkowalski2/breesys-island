@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breesy's Island — Operations Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e17;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: 32px;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .brand-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, #f5c842, #f37021);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+        }
+        .header h1 { font-size: 24px; font-weight: 700; color: #fff; }
+        .header .subtitle { font-size: 13px; color: #64748b; margin-top: 2px; }
+        .header-status {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.04);
+            padding: 8px 16px; border-radius: 8px;
+            font-size: 13px; color: #94a3b8;
+        }
+        .live-dot {
+            width: 8px; height: 8px; background: #22c55e;
+            border-radius: 50%; animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+        /* Stats Strip */
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-number { font-size: 32px; font-weight: 800; color: #fff; }
+        .stat-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .stat-card.teal .stat-number { color: #2dd4bf; }
+        .stat-card.gold .stat-number { color: #f5c842; }
+        .stat-card.coral .stat-number { color: #f37021; }
+        .stat-card.green .stat-number { color: #22c55e; }
+        .stat-card.blue .stat-number { color: #60a5fa; }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header h2 { font-size: 14px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .card-header .count {
+            background: rgba(255,255,255,0.08);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .card-body { padding: 16px 20px; }
+
+        .card.full-width { grid-column: 1 / -1; }
+
+        /* Agent Cards */
+        .agent-list { display: flex; flex-direction: column; gap: 12px; }
+        .agent-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .agent-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .agent-avatar.orange { background: rgba(243,112,33,0.2); }
+        .agent-avatar.blue { background: rgba(96,165,250,0.2); }
+        .agent-info { flex: 1; }
+        .agent-name { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+        .agent-role { font-size: 12px; color: #64748b; }
+        .agent-status {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px;
+        }
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+        .status-dot.active { background: #22c55e; }
+        .status-dot.idle { background: #f59e0b; }
+        .status-dot.off { background: #ef4444; }
+
+        /* Task Columns */
+        .task-columns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .task-col {
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 120px;
+        }
+        .task-col h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(255,255,255,0.06);
+            margin-bottom: 8px;
+        }
+        .task-col h3 .num {
+            float: right;
+            background: rgba(255,255,255,0.08);
+            padding: 0 8px;
+            border-radius: 8px;
+        }
+        .task-item {
+            font-size: 12px;
+            padding: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+            border-left: 3px solid;
+        }
+        .task-item.done { border-color: #22c55e; opacity: 0.6; }
+        .task-item.in-progress { border-color: #60a5fa; }
+        .task-item.review { border-color: #f5c842; }
+        .task-item .task-title { font-weight: 500; }
+        .task-item .task-agent { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+        /* Design Library Tree */
+        .asset-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        .asset-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .asset-box .icon { font-size: 24px; margin-bottom: 4px; }
+        .asset-box .name { font-size: 12px; color: #94a3b8; font-weight: 500; }
+        .asset-box .count { font-size: 24px; font-weight: 700; color: #f5c842; }
+        .asset-box .size { font-size: 11px; color: #64748b; }
+
+        /* Activity */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-size: 13px;
+        }
+        .activity-item .time {
+            font-size: 11px;
+            color: #475569;
+            font-family: monospace;
+            min-width: 70px;
+        }
+        .activity-item .action { color: #60a5fa; }
+        .activity-item .detail { color: #94a3b8; }
+
+        /* Sites */
+        .sites-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .site-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .site-card .url {
+            font-size: 13px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .site-card .url:hover { text-decoration: underline; }
+        .site-card .desc { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .site-card .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            margin-top: 6px;
+        }
+        .badge.live { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .badge.dev { background: rgba(96,165,250,0.15); color: #60a5fa; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .task-columns { grid-template-columns: 1fr 1fr; }
+            .sites-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="brand-icon">🏝️</div>
+            <div>
+                <h1>Breesy's Island</h1>
+                <div class="subtitle">Agent Operations Dashboard — Real-Time</div>
+            </div>
+        </div>
+        <div class="header-status">
+            <span class="live-dot"></span>
+            All Systems Operational
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-strip">
+        <div class="stat-card teal">
+            <div class="stat-number">12</div>
+            <div class="stat-label">Tasks Completed</div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-number">104</div>
+            <div class="stat-label">Design Files</div>
+        </div>
+        <div class="stat-card coral">
+            <div class="stat-number">21</div>
+            <div class="stat-label">Product Mockups</div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-number">30+</div>
+            <div class="stat-label">Live Products</div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-number">232</div>
+            <div class="stat-label">MB Total Assets</div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+        <!-- Agents -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🤖 Agent Team</h2>
+                <span class="count">2 active</span>
+            </div>
+            <div class="card-body">
+                <div class="agent-list">
+                    <div class="agent-row">
+                        <div class="agent-avatar orange">🎨</div>
+                        <div class="agent-info">
+                            <div class="agent-name">Fishing Apparel Designer</div>
+                            <div class="agent-role">Logo design, apparel graphics, mockups, patterns</div>
+                        </div>
+                        <div class="agent-status">
+                            <span class="status-dot active"></span> Active
+                        </div>
+                    </div>
+                    <div class="agent-row">
+                        <div class="agent-avatar blue">💻</div>
+                        <div class="agent-info">
+                            <div class="agent-name">Web Developer (E-commerce)</div>
+                            <div class="agent-role">Site building, deployment, React/Vite/Tailwind</div>
+                        </div>
+                        <div class="agent-status">
+                            <span class="status-dot idle"></span> Idle
+                        </div>
+                    </div>
+                    <div class="agent-row">
+                        <div class="agent-avatar" style="background:rgba(245,200,66,0.2);">🧠</div>
+                        <div class="agent-info">
+                            <div class="agent-name">You — Business Owner</div>
+                            <div class="agent-role">Direction, approvals, strategic decisions</div>
+                        </div>
+                        <div class="agent-status">
+                            <span class="status-dot active"></span> Online
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Board -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📋 Kanban Board</h2>
+                <span class="count">12 tasks</span>
+            </div>
+            <div class="card-body">
+                <div class="task-columns">
+                    <div class="task-col">
+                        <h3>📥 Backlog <span class="num">0</span></h3>
+                        <div style="text-align:center;color:#475569;font-size:12px;padding:16px;">Empty</div>
+                    </div>
+                    <div class="task-col">
+                        <h3>⚡ In Progress <span class="num">0</span></h3>
+                        <div style="text-align:center;color:#475569;font-size:12px;padding:16px;">Empty</div>
+                    </div>
+                    <div class="task-col">
+                        <h3>👀 Review <span class="num">0</span></h3>
+                        <div style="text-align:center;color:#475569;font-size:12px;padding:16px;">Empty</div>
+                    </div>
+                    <div class="task-col">
+                        <h3>✅ Done <span class="num">12</span></h3>
+                        <div class="task-item done">
+                            <div class="task-title">Design Premium Saltwater Fishing Graphics</div>
+                            <div class="task-agent">🎨 Designer</div>
+                        </div>
+                        <div class="task-item done">
+                            <div class="task-title">v2 Photorealistic Upgrade</div>
+                            <div class="task-agent">🎨 Designer</div>
+                        </div>
+                        <div class="task-item done">
+                            <div class="task-title">v3 Tommy Bahama Redesign</div>
+                            <div class="task-agent">🎨 Designer</div>
+                        </div>
+                        <div class="task-item done">
+                            <div class="task-title">v4 Collection Expansion</div>
+                            <div class="task-agent">🎨 Designer</div>
+                        </div>
+                        <div class="task-item done">
+                            <div class="task-title">v5 Collection Expansion</div>
+                            <div class="task-agent">🎨 Designer</div>
+                        </div>
+                        <div class="task-item done">
+                            <div class="task-title">Build E-Commerce Brand Site</div>
+                            <div class="task-agent">💻 Web Dev</div>
+                        </div>
+                        <div style="font-size:11px;color:#475569;text-align:center;margin-top:8px;">+ 6 more completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Design Library -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🎨 Design Library</h2>
+                <span class="count">104 files · 232 MB</span>
+            </div>
+            <div class="card-body">
+                <div class="asset-strip">
+                    <div class="asset-box">
+                        <div class="icon">🎯</div>
+                        <div class="count">20</div>
+                        <div class="name">Original Designs</div>
+                        <div class="size">v1 · v2 · v3</div>
+                    </div>
+                    <div class="asset-box">
+                        <div class="icon">🌴</div>
+                        <div class="count">22</div>
+                        <div class="name">Tommy Bahama</div>
+                        <div class="size">v3 · v4 · v5</div>
+                    </div>
+                    <div class="asset-box">
+                        <div class="icon">📸</div>
+                        <div class="count">21</div>
+                        <div class="name">Mockups</div>
+                        <div class="size">Product photos</div>
+                    </div>
+                    <div class="asset-box">
+                        <div class="icon">🏃</div>
+                        <div class="count">22</div>
+                        <div class="name">Performance LS</div>
+                        <div class="size">$75 shirts</div>
+                    </div>
+                    <div class="asset-box">
+                        <div class="icon">🎨</div>
+                        <div class="count">19</div>
+                        <div class="name">Patterns & Graphics</div>
+                        <div class="size">AOP · Patches</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Sites -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🌐 Live Deployments</h2>
+                <span class="count">2 active</span>
+            </div>
+            <div class="card-body">
+                <div class="sites-grid">
+                    <div class="site-card">
+                        <a href="http://breesysisland.com" class="url" target="_blank">🌎 breesysisland.com →</a>
+                        <div class="desc">Custom domain — DNS connected to GitHub Pages</div>
+                        <span class="badge live">LIVE</span>
+                    </div>
+                    <div class="site-card">
+                        <a href="https://rwkowalski2.github.io/breesys-island/" class="url" target="_blank">📦 GitHub Pages Fallback →</a>
+                        <div class="desc">Always works while SSL cert provisions</div>
+                        <span class="badge dev">FALLBACK</span>
+                    </div>
+                </div>
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+                    <div style="font-size:12px;color:#64748b;margin-bottom:8px;font-weight:600;">📋 Launch Checklist</div>
+                    <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;">
+                        <span style="color:#22c55e;">✅ 30+ Products listed with mockups</span>
+                        <span style="color:#22c55e;">✅ Custom domain breesysisland.com</span>
+                        <span style="color:#22c55e;">✅ 104 design files across 5 collections</span>
+                        <span style="color:#22c55e;">✅ Performance Series (13 LS shirts)</span>
+                        <span style="color:#64748b;">⏳ Printful account setup to start selling</span>
+                        <span style="color:#64748b;">⏳ SSL certificate provisioning</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="card full-width">
+        <div class="card-header">
+            <h2>📜 Activity Log — Agent Operations</h2>
+            <span class="count">real-time</span>
+        </div>
+        <div class="card-body">
+            <div class="activity-list">
+                <div class="activity-item">
+                    <span class="time">just now</span>
+                    <span>🎨 <span class="action">Designer</span></span>
+                    <span class="detail">Breesy Edition LS shirts submitted & approved (Captain, Tiki Bar, Mangrove Run, Sunset Pier, Flats Fishing)</span>
+                </div>
+                <div class="activity-item">
+                    <span class="time">1 min ago</span>
+                    <span>🚀 <span class="action">Lead</span></span>
+                    <span class="detail">Performance Series pushed live — 13 LS shirts + Breesy editions on site</span>
+                </div>
+                <div class="activity-item">
+                    <span class="time">5 min ago</span>
+                    <span>🎨 <span class="action">Designer</span></span>
+                    <span class="detail">Created front/back tee mockups for all t-shirts</span>
+                </div>
+                <div class="activity-item">
+                    <span class="time">1 hr ago</span>
+                    <span>🔧 <span class="action">Owner</span></span>
+                    <span class="detail">DNS records updated at Porkbun → breesysisland.com resolving</span>
+                </div>
+                <div class="activity-item">
+                    <span class="time">2 hrs ago</span>
+                    <span>💻 <span class="action">Web Dev</span></span>
+                    <span class="detail">React e-commerce site built with Quick Add cart, POD workflow</span>
+                </div>
+                <div class="activity-item">
+                    <span class="time">yesterday</span>
+                    <span>🎨 <span class="action">Designer</span></span>
+                    <span class="detail">10 photorealistic product mockups created & integrated</span>
+                </div>
+                <div class="activity-item">
+                    <span class="time">yesterday</span>
+                    <span>🧠 <span class="action">Owner</span></span>
+                    <span class="detail">Direction change: Tommy Bahama style + Breesy = boy</span>
+                </div>
+                <div class="activity-item">
+                    <span class="time">2 days ago</span>
+                    <span>🚀 <span class="action">Lead</span></span>
+                    <span class="detail">v1-v5 design collections complete + GitHub Pages deployed</span>
+                </div>
+                <div class="activity-item">
+                    <span class="time">3 days ago</span>
+                    <span>🎨 <span class="action">Designer</span></span>
+                    <span class="detail">Initial 46+ designs across 5 collections created</span>
+                </div>
+                <div class="activity-item">
+                    <span class="time">3 days ago</span>
+                    <span>🏗️ <span class="action">Lead</span></span>
+                    <span class="detail">Team assembled: Designer + Web Dev + Brand Strategist</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;padding:32px 0 16px;font-size:12px;color:#475569;">
+        Breesy's Island — Agent Operations Dashboard · Built with team-db · Updates in real-time
+    </div>
+</div>
+</body>
+</html>
