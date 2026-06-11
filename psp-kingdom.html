@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breesy's Island — PSP Kingdom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0e17;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            padding: 16px;
+        }
+
+        .psp {
+            max-width: 860px;
+            width: 100%;
+            background: linear-gradient(180deg, #0d0d1a 0%, #1a1a2e 40%, #0d0d1a 100%);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 
+                0 0 0 2px rgba(255,255,255,0.05),
+                0 20px 60px rgba(0,0,0,0.5),
+                inset 0 0 80px rgba(0,50,255,0.03);
+            position: relative;
+        }
+
+        /* ===== PSP STATUS BAR ===== */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        .status-bar .left { display: flex; align-items: center; gap: 16px; }
+        .status-bar .time { color: rgba(255,255,255,0.6); font-weight: 400; }
+        .status-bar .right { display: flex; align-items: center; gap: 12px; }
+        .status-bar .battery {
+            display: flex; align-items: center; gap: 4px;
+        }
+        .status-bar .battery-level {
+            width: 24px; height: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 2px;
+            padding: 1px;
+            position: relative;
+        }
+        .status-bar .battery-level .fill {
+            width: 80%;
+            height: 100%;
+            background: #22c55e;
+            border-radius: 1px;
+        }
+        .status-bar .battery-level::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 2px;
+            width: 2px;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 0 1px 1px 0;
+        }
+        .status-bar .wifi {
+            font-size: 14px;
+            opacity: 0.5;
+        }
+
+        /* ===== PSP WAVE BG ===== */
+        .wave-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .wave-bg .wave {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                rgba(0,100,255,0.015) 2px,
+                transparent 4px,
+                transparent 50px
+            );
+            animation: waveScroll 8s linear infinite;
+        }
+        @keyframes waveScroll {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        .wave-bg .glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0,100,255,0.04) 0%, transparent 60%);
+        }
+
+        /* ===== PSP MAIN CONTENT ===== */
+        .psp-content {
+            position: relative;
+            z-index: 1;
+            padding: 20px 24px 10px;
+        }
+
+        /* ===== PSP HEADER ===== */
+        .psp-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .psp-header .logo-icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #f5c842, #f37021);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 20px rgba(245,200,66,0.2);
+        }
+        .psp-header .title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .psp-header .subtitle {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            font-weight: 300;
+            margin-top: 1px;
+        }
+        .psp-header .sp {
+            flex: 1;
+        }
+        .psp-header .online-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #22c55e;
+            font-weight: 500;
+        }
+        .psp-header .online-dot {
+            width: 6px; height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 6px #22c55e} 50%{opacity:0.5;box-shadow:0 0 12px #22c55e} }
+
+        /* ===== PSP XMB CATEGORY BAR ===== */
+        .xmb-categories {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .xmb-cat {
+            flex: 1;
+            padding: 10px 8px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .xmb-cat:hover { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.03); }
+        .xmb-cat.active {
+            background: linear-gradient(135deg, rgba(0,100,255,0.15), rgba(0,50,255,0.08));
+            color: #60a5fa;
+            box-shadow: 0 0 20px rgba(0,100,255,0.05);
+        }
+        .xmb-cat .cat-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
+        /* ===== CHARACTER GRID ===== */
+        .char-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .char-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 16px 12px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .char-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .char-card:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+        .char-card:hover::before { opacity: 1; }
+
+        .char-card .avatar {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 10px;
+            border: 2px solid rgba(255,255,255,0.06);
+        }
+        .char-card .char-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+        .char-card .char-role {
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+        .char-card .char-level {
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+        .char-card .status-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 600;
+            margin-top: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .card-designer .avatar { background: rgba(243,112,33,0.15); } 
+        .card-designer::before { background: linear-gradient(90deg, #f37021, #f59e0b); }
+        .card-designer .char-level { color: #f37021; }
+        .card-designer .status-tag { background: rgba(34,197,94,0.15); color: #22c55e; }
+
+        .card-webdev .avatar { background: rgba(96,165,250,0.15); }
+        .card-webdev::before { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+        .card-webdev .char-level { color: #60a5fa; }
+        .card-webdev .status-tag { background: rgba(245,158,11,0.15); color: #f59e0b; }
+
+        .card-lead .avatar { background: rgba(245,200,66,0.15); }
+        .card-lead::before { background: linear-gradient(90deg, #f5c842, #f5a842); }
+        .card-lead .char-level { color: #f5c842; }
+        .card-lead .status-tag { background: rgba(34,197,94,0.15); color: #22c55e; }
+
+        .card-breesy .avatar { background: rgba(212,167,106,0.15); }
+        .card-breesy::before { background: linear-gradient(90deg, #d4a76a, #c49a5a); }
+        .card-breesy .char-level { color: #d4a76a; }
+        .card-breesy .status-tag { background: rgba(34,197,94,0.15); color: #22c55e; }
+
+        /* ===== PSP GAME CARDS (Stats) ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-card-psp {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+        .stat-card-psp .stat-icon { font-size: 20px; margin-bottom: 4px; }
+        .stat-card-psp .stat-num {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .stat-card-psp .stat-lbl {
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+        .stat-card-psp.accent .stat-num { color: #60a5fa; }
+        .stat-card-psp.accent2 .stat-num { color: #f5c842; }
+        .stat-card-psp.accent3 .stat-num { color: #f37021; }
+        .stat-card-psp.accent4 .stat-num { color: #22c55e; }
+        .stat-card-psp.accent5 .stat-num { color: #d4a76a; }
+
+        /* ===== ACTIVITY FEED (PSP news feed style) ===== */
+        .feed-section {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+        }
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .feed-header h3 {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .feed-header .see-all {
+            font-size: 9px;
+            color: rgba(255,255,255,0.2);
+            cursor: pointer;
+        }
+        .feed-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .feed-item:last-child { border-bottom: none; }
+        .feed-item .feed-icon {
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .feed-item .feed-icon.designer { background: rgba(243,112,33,0.15); }
+        .feed-item .feed-icon.webdev { background: rgba(96,165,250,0.15); }
+        .feed-item .feed-icon.lead { background: rgba(245,200,66,0.15); }
+        .feed-item .feed-icon.system { background: rgba(255,255,255,0.05); }
+
+        .feed-item .feed-text { flex: 1; }
+        .feed-item .feed-title { font-size: 12px; font-weight: 500; color: #e2e8f0; }
+        .feed-item .feed-desc { font-size: 10px; color: rgba(255,255,255,0.3); font-weight: 400; }
+        .feed-item .feed-time {
+            font-size: 9px;
+            color: rgba(255,255,255,0.15);
+            font-weight: 400;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* ===== PSP BOTTOM BAR ===== */
+        .psp-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 8px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            margin-top: 4px;
+        }
+        .psp-bottom .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 9px;
+            color: rgba(255,255,255,0.2);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .psp-bottom .nav-item:hover { color: rgba(255,255,255,0.5); }
+        .psp-bottom .nav-item .nav-icon { font-size: 14px; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 700px) {
+            .char-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .xmb-categories { flex-wrap: wrap; }
+            .xmb-cat { flex: auto; min-width: 60px; font-size: 8px; }
+            .psp-header .title { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+<div class="psp">
+    <!-- Wave Background -->
+    <div class="wave-bg">
+        <div class="wave"></div>
+        <div class="glow"></div>
+    </div>
+
+    <!-- PSP Status Bar -->
+    <div class="status-bar">
+        <div class="left">
+            <span class="time">3:41 PM</span>
+            <span>|</span>
+            <span style="font-size:9px;">BREESY'S ISLAND v2.0</span>
+        </div>
+        <div class="right">
+            <span class="wifi">📶</span>
+            <span>🔊</span>
+            <div class="battery">
+                <div class="battery-level"><div class="fill"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="psp-content">
+        <!-- Header -->
+        <div class="psp-header">
+            <div class="logo-icon">🏝️</div>
+            <div>
+                <div class="title">Breesy's Kingdom</div>
+                <div class="subtitle">PSP Network Edition — Agent Operations</div>
+            </div>
+            <div class="sp"></div>
+            <div class="online-indicator">
+                <span class="online-dot"></span>
+                ALL SYSTEMS LIVE
+            </div>
+        </div>
+
+        <!-- XMB Category Bar -->
+        <div class="xmb-categories">
+            <div class="xmb-cat active"><span class="cat-icon">👥</span> Party</div>
+            <div class="xmb-cat"><span class="cat-icon">📋</span> Quests</div>
+            <div class="xmb-cat"><span class="cat-icon">🎨</span> Gallery</div>
+            <div class="xmb-cat"><span class="cat-icon">🏪</span> Store</div>
+            <div class="xmb-cat"><span class="cat-icon">🌐</span> Network</div>
+            <div class="xmb-cat"><span class="cat-icon">⚙️</span> Settings</div>
+        </div>
+
+        <!-- Character Cards -->
+        <div class="char-grid">
+            <!-- Designer -->
+            <div class="char-card card-designer">
+                <div class="avatar">🎨</div>
+                <div class="char-name">Apparel Designer</div>
+                <div class="char-role">Illustration · Image Gen</div>
+                <div class="char-level">Lv.12</div>
+                <div class="status-tag">● ONLINE</div>
+            </div>
+            <!-- Web Dev -->
+            <div class="char-card card-webdev">
+                <div class="avatar">💻</div>
+                <div class="char-name">Web Developer</div>
+                <div class="char-role">React · Vite · Tailwind</div>
+                <div class="char-level">Lv.8</div>
+                <div class="status-tag" style="background:rgba(245,158,11,0.15);color:#f59e0b;">● IDLE</div>
+            </div>
+            <!-- Owner -->
+            <div class="char-card card-lead">
+                <div class="avatar">👑</div>
+                <div class="char-name">Business Owner</div>
+                <div class="char-role">Strategy · Approvals</div>
+                <div class="char-level">Lv.99</div>
+                <div class="status-tag">● DIRECTING</div>
+            </div>
+            <!-- Breesy -->
+            <div class="char-card card-breesy">
+                <div class="avatar">🐕</div>
+                <div class="char-name">Breesy</div>
+                <div class="char-role">Tan Hound · Mascot</div>
+                <div class="char-level">⭐ INFINITE</div>
+                <div class="status-tag">● BEACH PATROL</div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card-psp accent">
+                <div class="stat-icon">📋</div>
+                <div class="stat-num">14</div>
+                <div class="stat-lbl">Quests Done</div>
+            </div>
+            <div class="stat-card-psp accent2">
+                <div class="stat-icon">🎨</div>
+                <div class="stat-num">104</div>
+                <div class="stat-lbl">Design Files</div>
+            </div>
+            <div class="stat-card-psp accent3">
+                <div class="stat-icon">📸</div>
+                <div class="stat-num">21</div>
+                <div class="stat-lbl">Mockups</div>
+            </div>
+            <div class="stat-card-psp accent4">
+                <div class="stat-icon">👕</div>
+                <div class="stat-num">40+</div>
+                <div class="stat-lbl">Products</div>
+            </div>
+            <div class="stat-card-psp accent5">
+                <div class="stat-icon">💾</div>
+                <div class="stat-num">232</div>
+                <div class="stat-lbl">MB Total</div>
+            </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="feed-section">
+            <div class="feed-header">
+                <h3>📡 Live Activity Feed</h3>
+                <span class="see-all">▲ Auto-Update</span>
+            </div>
+            <div class="feed-item">
+                <div class="feed-icon designer">🎨</div>
+                <div class="feed-text">
+                    <div class="feed-title">Designer completed Breesy Hat Collection</div>
+                    <div class="feed-desc">10 hats added with dedicated Headwear section</div>
+                </div>
+                <span class="feed-time">2m ago</span>
+            </div>
+            <div class="feed-item">
+                <div class="feed-icon lead">👑</div>
+                <div class="feed-text">
+                    <div class="feed-title">Owner launched PSP Kingdom dashboard</div>
+                    <div class="feed-desc">Modern PSP-style interface commissioned</div>
+                </div>
+                <span class="feed-time">now</span>
+            </div>
+            <div class="feed-item">
+                <div class="feed-icon designer">🎨</div>
+                <div class="feed-text">
+                    <div class="feed-title">Designer created 5 Breesy Tumblers</div>
+                    <div class="feed-desc">Drinkware section added to store</div>
+                </div>
+                <span class="feed-time">10m ago</span>
+            </div>
+            <div class="feed-item">
+                <div class="feed-icon webdev">💻</div>
+                <div class="feed-text">
+                    <div class="feed-title">Mario Kingdom dashboard deployed</div>
+                    <div class="feed-desc">Super Mario Bros themed ecosystem</div>
+                </div>
+                <span class="feed-time">15m ago</span>
+            </div>
+            <div class="feed-item">
+                <div class="feed-icon system">🚀</div>
+                <div class="feed-text">
+                    <div class="feed-title">Store deployed to breesysisland.com</div>
+                    <div class="feed-desc">Custom domain pointing to GitHub Pages</div>
+                </div>
+                <span class="feed-time">1h ago</span>
+            </div>
+            <div class="feed-item">
+                <div class="feed-icon designer">🎨</div>
+                <div class="feed-text">
+                    <div class="feed-title">Designed 13 Performance LS Shirts</div>
+                    <div class="feed-desc">Breesy Edition + fish-centric designs</div>
+                </div>
+                <span class="feed-time">2h ago</span>
+            </div>
+        </div>
+
+        <!-- PSP Bottom Nav -->
+        <div class="psp-bottom">
+            <div class="nav-item"><span class="nav-icon">🔙</span> Back</div>
+            <div class="nav-item"><span class="nav-icon">🏠</span> Home</div>
+            <div class="nav-item"><span class="nav-icon">👥</span> Party</div>
+            <div class="nav-item"><span class="nav-icon">🌐</span> breesysisland.com</div>
+            <div class="nav-item"><span class="nav-icon">⏹️</span> Power</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
