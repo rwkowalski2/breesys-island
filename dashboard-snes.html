@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breesy's Island — SNES Operations</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: #0a0e17;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        /* CRT Scanline overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.08) 2px,
+                rgba(0,0,0,0.08) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .snes-container {
+            max-width: 960px;
+            width: 100%;
+            background: #181a2e;
+            border: 4px solid #3b3f6b;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 
+                0 0 0 2px #0a0e17,
+                0 0 0 6px #2a2d4a,
+                inset 0 0 30px rgba(0,0,0,0.5);
+            position: relative;
+            image-rendering: pixelated;
+        }
+
+        /* Top Bar - Like SNES menu bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #232648;
+            border-bottom: 3px solid #3b3f6b;
+            margin-bottom: 16px;
+            font-size: 10px;
+            text-shadow: 2px 2px 0 #0a0e17;
+        }
+        .top-bar .title {
+            color: #f5c842;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        .top-bar .status {
+            color: #22c55e;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .blink {
+            width: 6px; height: 6px;
+            background: #22c55e;
+            animation: blink 0.8s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Stats Bar - Like RPG HP/MP */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .stat-block {
+            background: #1a1c36;
+            border: 2px solid #3b3f6b;
+            padding: 10px 6px;
+            text-align: center;
+        }
+        .stat-block .label {
+            font-size: 7px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+        .stat-block .value {
+            font-size: 18px;
+            color: #f5c842;
+            text-shadow: 2px 2px 0 #0a0e17;
+        }
+        .stat-block .sub {
+            font-size: 7px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .stat-block.highlight .value { color: #2dd4bf; }
+        .stat-block.attack .value { color: #f37021; }
+        .stat-block.magic .value { color: #60a5fa; }
+        .stat-block.gold .value { color: #f5c842; }
+        .stat-block.exp .value { color: #22c55e; }
+
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* Window Frame - Like SNES dialog box */
+        .window {
+            background: #1a1c36;
+            border: 3px solid #3b3f6b;
+            border-radius: 2px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+        }
+        .window-title {
+            background: #232648;
+            padding: 6px 10px;
+            font-size: 8px;
+            color: #cbd5e1;
+            border-bottom: 2px solid #3b3f6b;
+            display: flex;
+            justify-content: space-between;
+            letter-spacing: 1px;
+        }
+        .window-title .icon { font-size: 10px; }
+        .window-body { padding: 10px; }
+
+        /* Party Members - Like RPG characters */
+        .party-list { display: flex; flex-direction: column; gap: 8px; }
+        .party-member {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            position: relative;
+        }
+        .party-member .sprite {
+            width: 40px; height: 40px;
+            background: #232648;
+            border: 2px solid #3b3f6b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            image-rendering: pixelated;
+        }
+        .party-member .info { flex: 1; }
+        .party-member .name {
+            font-size: 9px;
+            color: #e2e8f0;
+            margin-bottom: 2px;
+        }
+        .party-member .class {
+            font-size: 7px;
+            color: #64748b;
+        }
+        .party-member .level {
+            font-size: 7px;
+            color: #f5c842;
+        }
+        .party-member .hp-bar {
+            width: 100%;
+            height: 6px;
+            background: #2a1a1a;
+            border: 1px solid #4a2a2a;
+            margin-top: 4px;
+        }
+        .party-member .hp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+            transition: width 1s;
+        }
+        .party-member .mp-bar {
+            width: 100%;
+            height: 4px;
+            background: #1a1a2a;
+            border: 1px solid #2a2a4a;
+            margin-top: 2px;
+        }
+        .party-member .mp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #60a5fa, #93c5fd);
+            transition: width 1s;
+        }
+        .status-icon {
+            font-size: 14px;
+            margin-left: 6px;
+        }
+
+        /* Quest Board */
+        .quest-list { display: flex; flex-direction: column; gap: 6px; }
+        .quest-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            background: rgba(255,255,255,0.02);
+            border-left: 3px solid;
+            font-size: 8px;
+        }
+        .quest-item.done { border-color: #22c55e; opacity: 0.6; }
+        .quest-item.done .quest-name { text-decoration: line-through; color: #475569; }
+        .quest-item .quest-name { color: #cbd5e1; flex: 1; }
+        .quest-item .quest-lv { font-size: 7px; color: #64748b; }
+        .quest-check { color: #22c55e; font-size: 10px; }
+        .quest-pending { color: #f59e0b; font-size: 10px; }
+
+        /* Inventory Grid */
+        .inv-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        .inv-slot {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 8px 4px;
+            text-align: center;
+        }
+        .inv-slot .icon { font-size: 18px; }
+        .inv-slot .name { font-size: 7px; color: #94a3b8; margin-top: 2px; }
+        .inv-slot .qty { font-size: 7px; color: #475569; }
+
+        /* Full width sections */
+        .full-row { grid-column: 1 / -1; }
+
+        /* Action Log - Like battle text */
+        .log-container {
+            max-height: 160px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #3b3f6b transparent;
+        }
+        .log-line {
+            font-size: 7px;
+            padding: 3px 0;
+            color: #94a3b8;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            gap: 6px;
+        }
+        .log-line .time { color: #475569; min-width: 50px; }
+        .log-line .actor { color: #f5c842; }
+        .log-line .action { color: #cbd5e1; }
+
+        /* Bottom Menu - Like RPG bottom menu */
+        .bottom-menu {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .menu-btn {
+            background: #232648;
+            border: 2px solid #3b3f6b;
+            padding: 8px;
+            text-align: center;
+            font-size: 7px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        .menu-btn:hover {
+            background: #2a2d56;
+            border-color: #f5c842;
+            color: #f5c842;
+        }
+        .menu-btn .btn-icon { font-size: 16px; margin-bottom: 2px; }
+
+        /* Pixel border effect */
+        .pixel-corners {
+            clip-path: polygon(
+                0 4px, 4px 0, calc(100% - 4px) 0, 100% 4px,
+                100% calc(100% - 4px), calc(100% - 4px) 100%,
+                4px 100%, 0 calc(100% - 4px)
+            );
+        }
+
+        /* Mini map */
+        .mini-map {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-top: 8px;
+        }
+        .map-tile {
+            aspect-ratio: 1;
+            background: #1a1c36;
+            border: 1px solid #2a2d4a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .map-tile.active { border-color: #f5c842; background: #2a2d4a; }
+        .map-tile .label { font-size: 5px; color: #64748b; }
+
+        @media (max-width: 700px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: repeat(3, 1fr); }
+            .bottom-menu { grid-template-columns: repeat(2, 1fr); }
+            .inv-grid { grid-template-columns: repeat(2, 1fr); }
+            .top-bar .title { font-size: 9px; }
+        }
+    </style>
+</head>
+<body>
+<div class="snes-container">
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="title">🏝️ BREESY'S ISLAND</div>
+        <div class="status">
+            <span class="blink"></span> SYS.ONLINE
+        </div>
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="stats-row">
+        <div class="stat-block highlight">
+            <div class="label">TASKS</div>
+            <div class="value">12</div>
+            <div class="sub">COMPLETED</div>
+        </div>
+        <div class="stat-block attack">
+            <div class="label">DESIGNS</div>
+            <div class="value">104</div>
+            <div class="sub">FILES</div>
+        </div>
+        <div class="stat-block magic">
+            <div class="label">MOCKUPS</div>
+            <div class="value">43</div>
+            <div class="sub">RENDERED</div>
+        </div>
+        <div class="stat-block gold">
+            <div class="label">PRODUCTS</div>
+            <div class="value">30+</div>
+            <div class="sub">IN STORE</div>
+        </div>
+        <div class="stat-block exp">
+            <div class="label">ASSETS</div>
+            <div class="value">232MB</div>
+            <div class="sub">TOTAL</div>
+        </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+        <!-- PARTY WINDOW -->
+        <div class="window">
+            <div class="window-title">
+                <span>PARTY</span>
+                <span class="icon">⚔️</span>
+            </div>
+            <div class="window-body">
+                <div class="party-list">
+                    <div class="party-member">
+                        <div class="sprite">🎨</div>
+                        <div class="info">
+                            <div class="name">FISHING APPAREL DESIGNER</div>
+                            <div class="class">Lv.12 · Illustrator · Image Gen</div>
+                            <div class="level">▶ CREATES DESIGNS</div>
+                            <div class="hp-bar"><div class="hp-fill" style="width:92%"></div></div>
+                            <div class="mp-bar"><div class="mp-fill" style="width:88%"></div></div>
+                        </div>
+                        <div class="status-icon">✅</div>
+                    </div>
+                    <div class="party-member">
+                        <div class="sprite">💻</div>
+                        <div class="info">
+                            <div class="name">WEB DEVELOPER</div>
+                            <div class="class">Lv.8 · React · Vite · Tailwind</div>
+                            <div class="level">💤 IDLE</div>
+                            <div class="hp-bar"><div class="hp-fill" style="width:75%"></div></div>
+                            <div class="mp-bar"><div class="mp-fill" style="width:60%"></div></div>
+                        </div>
+                        <div class="status-icon">💤</div>
+                    </div>
+                    <div class="party-member">
+                        <div class="sprite">🧠</div>
+                        <div class="info">
+                            <div class="name">BUSINESS OWNER (YOU)</div>
+                            <div class="class">Lv.99 · Strategy · Approvals</div>
+                            <div class="level">▶ DIRECTING</div>
+                            <div class="hp-bar"><div class="hp-fill" style="width:100%"></div></div>
+                            <div class="mp-bar"><div class="mp-fill" style="width:100%"></div></div>
+                        </div>
+                        <div class="status-icon">👑</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUEST BOARD -->
+        <div class="window">
+            <div class="window-title">
+                <span>QUEST LOG</span>
+                <span class="icon">📜</span>
+            </div>
+            <div class="window-body">
+                <div class="quest-list">
+                    <div class="quest-item done">
+                        <span class="quest-check">✅</span>
+                        <span class="quest-name">v1: Design Saltwater Fishing Graphics</span>
+                        <span class="quest-lv">Lv.1</span>
+                    </div>
+                    <div class="quest-item done">
+                        <span class="quest-check">✅</span>
+                        <span class="quest-name">v2: Photorealistic Upgrade</span>
+                        <span class="quest-lv">Lv.5</span>
+                    </div>
+                    <div class="quest-item done">
+                        <span class="quest-check">✅</span>
+                        <span class="quest-name">v3: Tommy Bahama Redesign</span>
+                        <span class="quest-lv">Lv.8</span>
+                    </div>
+                    <div class="quest-item done">
+                        <span class="quest-check">✅</span>
+                        <span class="quest-name">v4 + v5: Collection Expansion</span>
+                        <span class="quest-lv">Lv.10</span>
+                    </div>
+                    <div class="quest-item done">
+                        <span class="quest-check">✅</span>
+                        <span class="quest-name">Build E-Commerce Site</span>
+                        <span class="quest-lv">Lv.12</span>
+                    </div>
+                    <div class="quest-item done">
+                        <span class="quest-check">✅</span>
+                        <span class="quest-name">Create Product Mockups (21)</span>
+                        <span class="quest-lv">Lv.15</span>
+                    </div>
+                    <div class="quest-item done">
+                        <span class="quest-check">✅</span>
+                        <span class="quest-name">Performance LS Series (13)</span>
+                        <span class="quest-lv">Lv.18</span>
+                    </div>
+                    <div class="quest-item done">
+                        <span class="quest-check">✅</span>
+                        <span class="quest-name">Breesy Edition Shirts (8)</span>
+                        <span class="quest-lv">Lv.20</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INVENTORY -->
+        <div class="window">
+            <div class="window-title">
+                <span>INVENTORY</span>
+                <span class="icon">🎒</span>
+            </div>
+            <div class="window-body">
+                <div class="inv-grid">
+                    <div class="inv-slot">
+                        <div class="icon">🎯</div>
+                        <div class="name">Logos</div>
+                        <div class="qty">x6</div>
+                    </div>
+                    <div class="inv-slot">
+                        <div class="icon">👕</div>
+                        <div class="name">Tee Designs</div>
+                        <div class="qty">x15</div>
+                    </div>
+                    <div class="inv-slot">
+                        <div class="icon">🧢</div>
+                        <div class="name">Hat Patches</div>
+                        <div class="qty">x6</div>
+                    </div>
+                    <div class="inv-slot">
+                        <div class="icon">🏃</div>
+                        <div class="name">LS Shirts</div>
+                        <div class="qty">x13</div>
+                    </div>
+                    <div class="inv-slot">
+                        <div class="icon">🌴</div>
+                        <div class="name">Patterns</div>
+                        <div class="qty">x6</div>
+                    </div>
+                    <div class="inv-slot">
+                        <div class="icon">🖼️</div>
+                        <div class="name">Mockups</div>
+                        <div class="qty">x21</div>
+                    </div>
+                    <div class="inv-slot">
+                        <div class="icon">🏖️</div>
+                        <div class="name">Accessories</div>
+                        <div class="qty">x4</div>
+                    </div>
+                    <div class="inv-slot">
+                        <div class="icon">👶</div>
+                        <div class="name">Kids</div>
+                        <div class="qty">x1</div>
+                    </div>
+                    <div class="inv-slot">
+                        <div class="icon">🎨</div>
+                        <div class="name">Palettes</div>
+                        <div class="qty">x5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAP -->
+        <div class="window">
+            <div class="window-title">
+                <span>WORLD MAP</span>
+                <span class="icon">🗺️</span>
+            </div>
+            <div class="window-body">
+                <div class="mini-map">
+                    <div class="map-tile active">🎨</div>
+                    <div class="map-tile active">🖥️</div>
+                    <div class="map-tile active">🌐</div>
+                    <div class="map-tile">🏪</div>
+                </div>
+                <div style="font-size:7px;color:#64748b;margin-top:8px;display:flex;gap:8px;justify-content:center;">
+                    <span>🎨 Studio ✓</span>
+                    <span>🖥️ Dev ✓</span>
+                    <span>🌐 Live ✓</span>
+                    <span>🏪 Store ⏳</span>
+                </div>
+                <div style="margin-top:10px;padding:6px;background:#232648;border:1px solid #3b3f6b;">
+                    <div style="font-size:7px;color:#cbd5e1;display:flex;justify-content:space-between;">
+                        <span>🌎 breesysisland.com</span>
+                        <span style="color:#22c55e;">ONLINE</span>
+                    </div>
+                    <div style="font-size:7px;color:#64748b;margin-top:4px;">
+                        📦 github.io/breesys-island
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BATTLE LOG -->
+    <div class="window full-row">
+        <div class="window-title">
+            <span>BATTLE LOG</span>
+            <span class="icon">⚡</span>
+        </div>
+        <div class="window-body">
+            <div class="log-container">
+                <div class="log-line"><span class="time">NOW</span><span class="actor">DESIGNER</span><span class="action">Created Breesy Edition LS shirts! 🐕✨</span></div>
+                <div class="log-line"><span class="time">1m</span><span class="actor">LEAD</span><span class="action">Performance Series deployed — 13 LS shirts live</span></div>
+                <div class="log-line"><span class="time">5m</span><span class="actor">DESIGNER</span><span class="action">Front/back tee mockups completed ✅</span></div>
+                <div class="log-line"><span class="time">1h</span><span class="actor">OWNER</span><span class="action">DNS updated @Porkbun → domain resolves!</span></div>
+                <div class="log-line"><span class="time">2h</span><span class="actor">WEBDEV</span><span class="action">React e-commerce built + Quick Add cart</span></div>
+                <div class="log-line"><span class="time">1d</span><span class="actor">DESIGNER</span><span class="action">10 product mockups rendered 📸</span></div>
+                <div class="log-line"><span class="time">1d</span><span class="actor">OWNER</span><span class="action">Direction: Tommy Bahama style + Breesy is a boy</span></div>
+                <div class="log-line"><span class="time">2d</span><span class="actor">LEAD</span><span class="action">v1-v5 complete + GitHub Pages deployment 🚀</span></div>
+                <div class="log-line"><span class="time">3d</span><span class="actor">DESIGNER</span><span class="action">46 designs across 5 collections created</span></div>
+                <div class="log-line"><span class="time">3d</span><span class="actor">LEAD</span><span class="action">Party assembled: Designer + WebDev + Strategist</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM MENU -->
+    <div class="bottom-menu">
+        <div class="menu-btn" onclick="window.open('http://breesysisland.com','_blank')">
+            <div class="btn-icon">🏪</div>
+            VISIT STORE
+        </div>
+        <div class="menu-btn" onclick="window.open('https://rwkowalski2.github.io/breesys-island/','_blank')">
+            <div class="btn-icon">🌐</div>
+            GITHUB SITE
+        </div>
+        <div class="menu-btn">
+            <div class="btn-icon">🎮</div>
+            SAVE GAME
+        </div>
+        <div class="menu-btn">
+            <div class="btn-icon">⚙️</div>
+            CONFIG
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="text-align:center;margin-top:16px;font-size:6px;color:#2a2d4a;letter-spacing:2px;">
+        ═══ BREESY'S ISLAND Ⓡ 2026 — ALL RIGHTS RESERVED ═══
+    </div>
+</div>
+</body>
+</html>
