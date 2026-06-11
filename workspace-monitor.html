@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breesy's Island — Workspace Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #080b12;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: 20px;
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .brand {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f5c842, #f37021);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-right {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #22c55e;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .live-dot {
+            width: 8px; height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 6px #22c55e} 50%{opacity:0.5;box-shadow:0 0 12px #22c55e} }
+
+        /* Agent Workspace Grid */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        /* Workspace Window */
+        .workspace {
+            background: #0f1322;
+            border: 1px solid #1e2440;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+        .workspace-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #151b30;
+            border-bottom: 1px solid #1e2440;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+        .workspace-header .window-dots {
+            display: flex; gap: 6px;
+        }
+        .workspace-header .dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+        .dot.red { background: #ef4444; }
+        .dot.yellow { background: #f59e0b; }
+        .dot.green { background: #22c55e; }
+        .workspace-header .title {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+        .workspace-header .title .highlight {
+            color: #f5c842;
+        }
+        .workspace-header .status-badge {
+            margin-left: auto;
+            font-size: 9px;
+            padding: 2px 10px;
+            border-radius: 4px;
+        }
+        .status-badge.online {
+            background: rgba(34,197,94,0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34,197,94,0.3);
+        }
+        .status-badge.idle {
+            background: rgba(245,158,11,0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245,158,11,0.3);
+        }
+        .status-badge.working {
+            background: rgba(96,165,250,0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(96,165,250,0.3);
+        }
+
+        .workspace-body {
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* Terminal Panel */
+        .terminal-panel {
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+            border-right: 1px solid #1e2440;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .terminal-panel::-webkit-scrollbar { width: 4px; }
+        .terminal-panel::-webkit-scrollbar-track { background: transparent; }
+        .terminal-panel::-webkit-scrollbar-thumb { background: #1e2440; border-radius: 2px; }
+        .terminal-panel .prompt {
+            color: #22c55e;
+        }
+        .terminal-panel .cmd { color: #e2e8f0; }
+        .terminal-panel .output { color: #94a3b8; }
+        .terminal-panel .highlight { color: #f5c842; }
+        .terminal-panel .dim { color: #475569; }
+        .terminal-panel .file-link {
+            color: #60a5fa;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .terminal-panel .file-link:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+        .terminal-panel .error { color: #ef4444; }
+
+        /* File Tree */
+        .file-panel {
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .file-panel::-webkit-scrollbar { width: 4px; }
+        .file-panel::-webkit-scrollbar-track { background: transparent; }
+        .file-panel::-webkit-scrollbar-thumb { background: #1e2440; border-radius: 2px; }
+
+        .file-tree { list-style: none; }
+        .file-tree li {
+            padding: 2px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #94a3b8;
+            font-size: 10px;
+        }
+        .file-tree li.dir { color: #f5c842; }
+        .file-tree li.file { color: #cbd5e1; }
+        .file-tree li .icon { font-size: 12px; width: 16px; text-align: center; }
+        .file-tree li .time { 
+            margin-left: auto;
+            color: #475569;
+            font-size: 9px;
+            min-width: 50px;
+            text-align: right;
+        }
+        .file-tree li.active {
+            background: rgba(96,165,250,0.08);
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+        .file-tree .indent { padding-left: 16px; }
+
+        .section-title {
+            font-size: 9px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #1e2440;
+        }
+
+        /* Process List */
+        .process-list { display: flex; flex-direction: column; gap: 4px; }
+        .process-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 4px;
+        }
+        .process-item .pid { color: #475569; min-width: 40px; }
+        .process-item .cpu { color: #64748b; min-width: 30px; }
+        .process-item .name { color: #94a3b8; flex: 1; }
+        .process-item .mem {
+            color: #64748b;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .info-panel {
+            background: #0f1322;
+            border: 1px solid #1e2440;
+            border-radius: 8px;
+            padding: 14px;
+        }
+        .info-panel .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .info-panel .label { color: #64748b; }
+        .info-panel .value { color: #e2e8f0; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+        /* Activity Stream */
+        .activity-stream {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            max-height: 160px;
+            overflow-y: auto;
+        }
+        .activity-stream::-webkit-scrollbar { width: 4px; }
+        .activity-stream::-webkit-scrollbar-track { background: transparent; }
+        .activity-stream::-webkit-scrollbar-thumb { background: #1e2440; border-radius: 2px; }
+        .stream-item {
+            display: flex;
+            gap: 8px;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+        }
+        .stream-item .ts { color: #475569; min-width: 36px; }
+        .stream-item .agent-tag {
+            padding: 0 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            font-weight: 600;
+        }
+        .agent-tag.designer { background: rgba(243,112,33,0.2); color: #f37021; }
+        .agent-tag.webdev { background: rgba(96,165,250,0.2); color: #60a5fa; }
+        .agent-tag.lead { background: rgba(245,200,66,0.2); color: #f5c842; }
+        .stream-item .msg { color: #94a3b8; flex: 1; }
+
+        /* @media */
+        @media (max-width: 900px) {
+            .workspace-grid { grid-template-columns: 1fr; }
+            .bottom-bar { grid-template-columns: 1fr; }
+            .workspace-body { grid-template-columns: 1fr; }
+            .terminal-panel { border-right: none; border-bottom: 1px solid #1e2440; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="header-left">
+            <span class="brand">⌨️ BREESY'S ISLAND — WORKSPACE MONITOR</span>
+        </div>
+        <div class="header-right">
+            <span class="live-dot"></span>
+            LIVE · polling every 5s
+        </div>
+    </div>
+
+    <!-- Agent Workspaces -->
+    <div class="workspace-grid">
+        <!-- DESIGNER WORKSPACE -->
+        <div class="workspace">
+            <div class="workspace-header">
+                <div class="window-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <div class="title">🎨 <span class="highlight">Fishing Apparel Designer</span> — agent-fishing-apparel-designer@studio</div>
+                <span class="status-badge online">● ONLINE</span>
+            </div>
+            <div class="workspace-body">
+                <div class="terminal-panel">
+                    <div class="section-title">💻 ACTIVE PROCESSES</div>
+                    <div class="process-list">
+                        <div class="process-item">
+                            <span class="pid">PID 70278</span>
+                            <span class="cpu">0.0%</span>
+                            <span class="name">chrome_crashpad_handler</span>
+                            <span class="mem">3.4MB</span>
+                        </div>
+                        <div class="process-item">
+                            <span class="pid">PID —</span>
+                            <span class="cpu">—</span>
+                            <span class="name" style="color:#64748b;">(agent idle — no active task)</span>
+                            <span class="mem">—</span>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;">
+                        <div class="section-title">📁 RECENT OUTPUTS</div>
+                        <span class="prompt">$</span> <span class="cmd">ls -la /home/team/shared/designs/</span>
+                        <div class="output">total 232M — 104 design files across 6 collections</div>
+                        <span class="prompt">$</span> <span class="cmd">./generate_mockup --front-crest --back-artwork</span>
+                        <div class="output">✔ performance_breesy_captain.png — <span class="highlight">1.8MB</span></div>
+                        <div class="output">✔ performance_breesy_tiki_bar.png — <span class="highlight">2.1MB</span></div>
+                        <div class="output">✔ performance_breesy_mangrove_run.png — <span class="highlight">2.0MB</span></div>
+                        <div class="output">✔ performance_breesy_sunset_pier.png — <span class="highlight">1.8MB</span></div>
+                        <div class="output">✔ performance_breesy_fishing.png — <span class="highlight">1.8MB</span></div>
+                        <span class="prompt">$</span> <span class="cmd">git status</span>
+                        <div class="output">On branch main — all designs submitted ✅</div>
+                    </div>
+                </div>
+                <div class="file-panel">
+                    <div class="section-title">📂 WORKSPACE FILES</div>
+                    <ul class="file-tree">
+                        <li class="dir"><span class="icon">📁</span> /home/team/shared/</li>
+                        <li class="indent file active"><span class="icon">📄</span> brand_color_palette.txt <span class="time">updated</span></li>
+                        <li class="indent dir"><span class="icon">📁</span> designs/ <span class="time">232M</span></li>
+                        <li class="indent indent dir"><span class="icon">📁</span> v3_tommy_bahama/ <span class="time">18M</span></li>
+                        <li class="indent indent file"><span class="icon">🖼️</span> breesys_island_logo_v3.png <span class="time">2.6M</span></li>
+                        <li class="indent indent file"><span class="icon">🖼️</span> tshirt_front_scene_v3.png <span class="time">4.1M</span></li>
+                        <li class="indent indent file"><span class="icon">🖼️</span> tropical_pattern_v3.png <span class="time">2.2M</span></li>
+                        <li class="indent indent dir"><span class="icon">📁</span> v4_expansion/ <span class="time">17M</span></li>
+                        <li class="indent indent file"><span class="icon">🖼️</span> tshirt_front_tiki_bar_v4.png <span class="time">3.6M</span></li>
+                        <li class="indent indent file"><span class="icon">🖼️</span> nautical_map_pattern_v4.png <span class="time">2.6M</span></li>
+                        <li class="indent indent dir"><span class="icon">📁</span> v5_full_collection/ <span class="time">43M</span></li>
+                        <li class="indent indent file"><span class="icon">🖼️</span> breesys_island_sunset_pier_v5.png <span class="time">4.2M</span></li>
+                        <li class="indent indent dir"><span class="icon">📁</span> mockups/ <span class="time">21 files</span></li>
+                        <li class="indent indent file"><span class="icon">🖼️</span> *updated_mockup.png <span class="time">1.5-1.7M</span></li>
+                        <li class="indent indent dir"><span class="icon">📁</span> performance/ <span class="time">22 files</span></li>
+                        <li class="indent indent file active"><span class="icon">🖼️</span> performance_breesy_*.png <span class="time">JUST NOW</span></li>
+                        <li class="indent indent file"><span class="icon">🖼️</span> ls_perf_*.png <span class="time">1.5-1.9M</span></li>
+                    </ul>
+                    <div style="margin-top:10px;">
+                        <div class="section-title">⚡ LAST ACTION</div>
+                        <div style="font-size:10px;color:#22c55e;">
+                            ▶ Created 5 Breesy Edition performance LS shirts
+                        </div>
+                        <div style="font-size:9px;color:#475569;margin-top:2px;">
+                            via agent-fishing-apparel-designer · finish_task()
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEB DEV WORKSPACE -->
+        <div class="workspace">
+            <div class="workspace-header">
+                <div class="window-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <div class="title">💻 <span class="highlight">Web Developer</span> — agent-web-developer-e-commerce@workspace</div>
+                <span class="status-badge idle">● IDLE</span>
+            </div>
+            <div class="workspace-body">
+                <div class="terminal-panel">
+                    <div class="section-title">💻 ACTIVE PROCESSES</div>
+                    <div class="process-list">
+                        <div class="process-item">
+                            <span class="pid">PID 44781</span>
+                            <span class="cpu">0.0%</span>
+                            <span class="name">node vite preview —port 5173</span>
+                            <span class="mem">130MB</span>
+                        </div>
+                        <div class="process-item">
+                            <span class="pid">PID 44821</span>
+                            <span class="cpu">0.0%</span>
+                            <span class="name">chrome_crashpad_handler</span>
+                            <span class="mem">3.5MB</span>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;">
+                        <div class="section-title">📁 SITE BUILD</div>
+                        <span class="prompt">$</span> <span class="cmd">npm run dev</span>
+                        <div class="output">  VITE v5.x  ready in 320ms</div>
+                        <div class="output">  ➜  Local:   http://localhost:5173/</div>
+                        <div class="output">  ➜  Network: http://0.0.0.0:5173/</div>
+                        <span class="prompt">$</span> <span class="cmd">git push origin main</span>
+                        <div class="output">  ✔ 12 commits · 30+ products deployed</div>
+                        <span class="prompt">$</span> <span class="cmd">./deploy.sh --pages</span>
+                        <div class="output">  ✔ GitHub Pages — <span class="highlight">https://rwkowalski2.github.io/breesys-island/</span></div>
+                        <div class="output">  ✔ Custom domain — <span class="highlight">http://breesysisland.com</span></div>
+                    </div>
+                </div>
+                <div class="file-panel">
+                    <div class="section-title">📂 WORKSPACE FILES</div>
+                    <ul class="file-tree">
+                        <li class="dir active"><span class="icon">📁</span> /home/agent-web-developer-e-commerce/</li>
+                        <li class="indent dir"><span class="icon">📁</span> breesys-island/ (React App)</li>
+                        <li class="indent indent file"><span class="icon">📄</span> package.json</li>
+                        <li class="indent indent file"><span class="icon">⚛️</span> vite.config.js</li>
+                        <li class="indent indent file"><span class="icon">📄</span> index.html</li>
+                        <li class="indent indent dir"><span class="icon">📁</span> src/</li>
+                        <li class="indent indent indent file"><span class="icon">📄</span> App.jsx</li>
+                        <li class="indent indent indent file"><span class="icon">🎨</span> index.css</li>
+                        <li style="margin-top:8px;"></li>
+                        <li class="dir"><span class="icon">📁</span> /home/team/shared/breesys-island-site/</li>
+                        <li class="indent file"><span class="icon">📄</span> index.html <span class="time">30+ prods</span></li>
+                        <li class="indent file"><span class="icon">🎨</span> style.css</li>
+                        <li class="indent file"><span class="icon">⚡</span> script.js</li>
+                        <li class="indent file"><span class="icon">📄</span> README.md</li>
+                        <li class="indent file"><span class="icon">📁</span> CNAME</li>
+                        <li class="indent file"><span class="icon">📁</span> assets/</li>
+                    </ul>
+                    <div style="margin-top:10px;">
+                        <div class="section-title">⚡ LAST ACTION</div>
+                        <div style="font-size:10px;color:#f59e0b;">
+                            💤 Idle — no active task
+                        </div>
+                        <div style="font-size:9px;color:#475569;margin-top:2px;">
+                            Last: Built React e-commerce + GitHub Pages deploy
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Info -->
+    <div class="bottom-bar">
+        <!-- System Info -->
+        <div class="info-panel">
+            <div style="font-size:11px;color:#f5c842;font-weight:600;margin-bottom:8px;">🖥️ SYSTEM OVERVIEW</div>
+            <div class="row">
+                <span class="label">Environment</span>
+                <span class="value">Linux · Ubuntu 24.04</span>
+            </div>
+            <div class="row">
+                <span class="label">Total Tasks</span>
+                <span class="value">12 / 12 completed</span>
+            </div>
+            <div class="row">
+                <span class="label">Total Assets</span>
+                <span class="value">232 MB (104 PNG files)</span>
+            </div>
+            <div class="row">
+                <span class="label">Store Products</span>
+                <span class="value">30+ live</span>
+            </div>
+            <div class="row">
+                <span class="label">Last Deploy</span>
+                <span class="value">SNES Dashboard · 213b9ef</span>
+            </div>
+            <div class="row">
+                <span class="label">Store URL</span>
+                <span class="value" style="color:#60a5fa;font-size:10px;">http://breesysisland.com</span>
+            </div>
+        </div>
+
+        <!-- Activity Stream -->
+        <div class="info-panel">
+            <div style="font-size:11px;color:#60a5fa;font-weight:600;margin-bottom:8px;">📡 ACTIVITY STREAM</div>
+            <div class="activity-stream">
+                <div class="stream-item">
+                    <span class="ts">NOW</span>
+                    <span class="agent-tag designer">DES</span>
+                    <span class="msg">✔️ 5 Breesy Edition LS shirts submitted & integrated</span>
+                </div>
+                <div class="stream-item">
+                    <span class="ts">—</span>
+                    <span class="agent-tag lead">LDR</span>
+                    <span class="msg">Performance Series section added to site (12 LS shirts)</span>
+                </div>
+                <div class="stream-item">
+                    <span class="ts">—</span>
+                    <span class="agent-tag designer">DES</span>
+                    <span class="msg">Front/back mockups created for all tees</span>
+                </div>
+                <div class="stream-item">
+                    <span class="ts">—</span>
+                    <span class="agent-tag webdev">DEV</span>
+                    <span class="msg">React e-commerce site with Quick Add cart deployed</span>
+                </div>
+                <div class="stream-item">
+                    <span class="ts">—</span>
+                    <span class="agent-tag designer">DES</span>
+                    <span class="msg">21 photorealistic product mockups rendered</span>
+                </div>
+                <div class="stream-item">
+                    <span class="ts">—</span>
+                    <span class="agent-tag owner">OWN</span>
+                    <span class="msg">Direction: Tommy Bahama style + Breesy is a boy</span>
+                </div>
+                <div class="stream-item">
+                    <span class="ts">—</span>
+                    <span class="agent-tag lead">LDR</span>
+                    <span class="msg">v1-v5 design collections complete + GitHub Pages deployed</span>
+                </div>
+                <div class="stream-item">
+                    <span class="ts">—</span>
+                    <span class="agent-tag designer">DES</span>
+                    <span class="msg">46 designs across 5 collections created</span>
+                </div>
+                <div class="stream-item">
+                    <span class="ts">—</span>
+                    <span class="agent-tag lead">LDR</span>
+                    <span class="msg">Party assembled: Designer + WebDev</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align:center;margin-top:16px;padding:12px;background:#0f1322;border:1px solid #1e2440;border-radius:8px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#475569;">
+            ⚡ real-time monitoring · workspace v1.0 · cto.new ecosystem · last updated: just now
+        </span>
+    </div>
+</div>
+</body>
+</html>
