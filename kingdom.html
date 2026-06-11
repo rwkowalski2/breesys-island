@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breesy's Kingdom — 16-Bit Hierarchy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0a0e17;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Press Start 2P', monospace;
+            padding: 16px;
+            image-rendering: pixelated;
+        }
+
+        .gameboy {
+            max-width: 880px;
+            width: 100%;
+            background: #181a2e;
+            border: 4px solid #3b3f6b;
+            padding: 16px;
+            box-shadow: 
+                0 0 0 2px #0a0e17,
+                0 0 0 6px #2a2d4a,
+                inset 0 0 40px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        /* ===== SCREEN TOP BAR ===== */
+        .screen-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1a1c36;
+            border: 2px solid #3b3f6b;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+        }
+        .screen-top .title {
+            font-size: 10px;
+            color: #f5c842;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0 #0a0e17;
+        }
+        .screen-top .hp-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .screen-top .hp-fill {
+            width: 60px;
+            height: 6px;
+            background: #2a1a1a;
+            border: 1px solid #4a2a2a;
+        }
+        .screen-top .hp-fill .fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+        }
+        .screen-top .hp-text {
+            font-size: 7px;
+            color: #22c55e;
+        }
+
+        /* ===== WORLD MAP ===== */
+        .world {
+            position: relative;
+            background: linear-gradient(180deg, 
+                #1a1a3e 0%, #2d1b4e 30%, 
+                #2d4a2a 50%, #1a3a1a 60%,
+                #2d5a3a 70%, #1a4a2a 80%,
+                #d4a96a 85%, #b8863e 90%, #6b4f12 100%
+            );
+            border: 3px solid #3b3f6b;
+            min-height: 480px;
+            position: relative;
+            overflow: hidden;
+            image-rendering: pixelated;
+        }
+
+        /* ===== PIXEL SKY ===== */
+        .pixel-sky {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 45%;
+            background: linear-gradient(180deg, #1a1a3e 0%, #2d1b4e 40%, #2d4a2a 100%);
+        }
+        .pixel-star {
+            position: absolute;
+            width: 3px; height: 3px;
+            background: #fff;
+            box-shadow: 0 0 2px #fff;
+            animation: pixelTwinkle 2s step-end infinite;
+        }
+        @keyframes pixelTwinkle {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ===== PIXEL SUN ===== */
+        .pixel-sun {
+            position: absolute;
+            top: 8%; right: 12%;
+            width: 32px; height: 32px;
+            background: #f5c842;
+            box-shadow: 0 0 0 4px #f5a842, 0 0 0 8px rgba(245,168,66,0.3);
+        }
+
+        /* ===== PIXEL CLOUDS ===== */
+        .pixel-cloud {
+            position: absolute;
+            display: flex;
+            gap: 2px;
+            animation: pixelCloudScroll 40s linear infinite;
+        }
+        @keyframes pixelCloudScroll {
+            from { transform: translateX(-100px); }
+            to { transform: translateX(calc(100vw)); }
+        }
+        .pixel-cloud .p {
+            width: 8px; height: 8px;
+            background: rgba(255,255,255,0.12);
+        }
+        .pixel-cloud .p2 { width: 12px; height: 8px; }
+        .pixel-cloud .p3 { width: 8px; height: 6px; margin-top: 2px; }
+
+        /* ===== GROUND ===== */
+        .ground {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 20%;
+            background: linear-gradient(180deg, #d4a96a, #b8863e);
+        }
+        .ground-tile {
+            position: absolute;
+            width: 16px; height: 8px;
+            background: #c49a4a;
+            border-bottom: 2px solid #8b6914;
+        }
+        .grass-tile {
+            position: absolute;
+            width: 16px; height: 8px;
+            background: #3a7a2a;
+            border-bottom: 2px solid #2a5a1a;
+        }
+
+        /* ===== CASTLES ===== */
+        .castle {
+            position: absolute;
+            image-rendering: pixelated;
+        }
+
+        /* Castle Base Styles */
+        .castle-body {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Castle walls (pixel bricks) */
+        .castle-walls {
+            display: flex;
+            gap: 2px;
+        }
+        .castle-walls .brick {
+            width: 8px;
+            background: #8a8aa0;
+            border-bottom: 2px solid #6a6a80;
+        }
+
+        /* Castle Roof */
+        .castle-roof {
+            display: flex;
+            align-items: flex-end;
+        }
+        .castle-roof .r-block {
+            width: 8px;
+            background: #c94040;
+            border-bottom: 2px solid #a02020;
+        }
+
+        /* Battlements */
+        .battlement {
+            display: flex;
+            gap: 2px;
+        }
+        .battlement .b {
+            width: 8px; height: 6px;
+            background: #8a8aa0;
+            border-bottom: 2px solid #6a6a80;
+        }
+        .battlement .b-space {
+            width: 8px; height: 6px;
+        }
+
+        /* Castle Door */
+        .castle-door {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .castle-door .arch {
+            width: 16px; height: 12px;
+            background: #4a2a0a;
+            border-radius: 4px 4px 0 0;
+            border: 1px solid #2a1a0a;
+        }
+        .castle-door .arch::after {
+            content: '·';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #f5c842;
+            font-size: 8px;
+        }
+
+        /* ===== CASTLE 1: KINGDOM (Owner) ===== */
+        .castle-kingdom {
+            bottom: 18%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+        .castle-kingdom .castle-walls { height: 60px; }
+        .castle-kingdom .castle-walls .brick { height: 60px; }
+        .castle-kingdom .battlement .b,
+        .castle-kingdom .battlement .b-space { width: 10px; }
+        .castle-kingdom .castle-roof .r-block { height: 20px; }
+        .castle-kingdom .flag {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            animation: flagWave 1s step-end infinite;
+        }
+        @keyframes flagWave {
+            0%,100% { transform: translateX(-50%) rotate(-3deg); }
+            50% { transform: translateX(-50%) rotate(3deg); }
+        }
+        .castle-kingdom .castle-label {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 6px;
+            color: #f5c842;
+            text-shadow: 2px 2px 0 #0a0e17;
+            white-space: nowrap;
+            letter-spacing: 2px;
+        }
+
+        /* ===== CASTLE 2: CREATIVE TOWER (Designer) ===== */
+        .castle-designer {
+            bottom: 16%;
+            left: 15%;
+            z-index: 4;
+        }
+        .castle-designer .castle-walls { height: 40px; }
+        .castle-designer .castle-walls .brick { height: 40px; background: #d08060; border-color: #a06040; }
+        .castle-designer .castle-roof .r-block { height: 14px; background: #f5a842; border-color: #d08040; }
+        .castle-designer .battlement .b { background: #d08060; border-color: #a06040; }
+        .castle-designer .castle-label {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 5px;
+            color: #f5a842;
+            text-shadow: 2px 2px 0 #0a0e17;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+
+        /* ===== CASTLE 3: TECH FORTRESS (Web Dev) ===== */
+        .castle-webdev {
+            bottom: 16%;
+            right: 15%;
+            z-index: 4;
+        }
+        .castle-webdev .castle-walls { height: 32px; }
+        .castle-webdev .castle-walls .brick { height: 32px; background: #5a7ac0; border-color: #3a5aa0; }
+        .castle-webdev .castle-roof .r-block { height: 12px; background: #4a8af0; border-color: #2a6ad0; }
+        .castle-webdev .battlement .b { background: #5a7ac0; border-color: #3a5aa0; }
+        .castle-webdev .castle-label {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 5px;
+            color: #60a5fa;
+            text-shadow: 2px 2px 0 #0a0e17;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+
+        /* ===== CASTLE 4: BREESY'S DOGHOUSE ===== */
+        .castle-breesy {
+            bottom: 14%;
+            left: 38%;
+            z-index: 3;
+        }
+        .castle-breesy .castle-walls { height: 18px; }
+        .castle-breesy .castle-walls .brick { height: 18px; background: #a08050; border-color: #806030; }
+        .castle-breesy .castle-roof .r-block { height: 10px; background: #c04040; border-color: #a02020; }
+        .castle-breesy .castle-label {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 5px;
+            color: #d4a76a;
+            text-shadow: 2px 2px 0 #0a0e17;
+            white-space: nowrap;
+        }
+        .castle-breesy .bone-flag {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            animation: flagWave 1.5s step-end infinite;
+        }
+
+        /* ===== 16-BIT CHARACTER SPRITES ===== */
+        .sprite-area {
+            position: absolute;
+            bottom: 15%;
+            left: 0; right: 0;
+            height: 80px;
+            z-index: 10;
+        }
+
+        .pixel-char {
+            position: absolute;
+            bottom: 0;
+            image-rendering: pixelated;
+        }
+
+        /* Generic pixel character frame */
+        .pixel-char .sp body {
+            position: relative;
+        }
+        .pixel-char .sp-body {
+            display: grid;
+            grid-template-columns: repeat(3, 6px);
+            grid-template-rows: repeat(6, 6px);
+            gap: 0;
+        }
+
+        /* Designer Sprite */
+        .char-designer-sprite { left: 14%; bottom: -4px; }
+        .char-designer-sprite .sp-body {
+            display: grid;
+            grid-template-columns: repeat(3, 6px);
+            grid-template-rows: repeat(6, 6px);
+        }
+        .pixel { width: 6px; height: 6px; image-rendering: pixelated; }
+
+        /* Build pixel sprites using inline-block */
+        .sprite-grid {
+            display: grid;
+            gap: 0;
+            image-rendering: pixelated;
+        }
+        .s-grid { display: inline-block; }
+        .sg { display: inline-block; width: 6px; height: 6px; line-height: 0; font-size: 0; vertical-align: top; }
+
+        /* Row-based sprites */
+        .sprite {
+            display: inline-block;
+            position: relative;
+        }
+        .sprite .r { display: flex; }
+        .sprite .p { width: 7px; height: 7px; display: inline-block; }
+
+        /* Character sprite builder */
+        .char-sprite {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+        .char-sprite .row { display: flex; }
+        .char-sprite .pix {
+            width: 7px;
+            height: 7px;
+            flex-shrink: 0;
+        }
+
+        /* ===== DESIGNER SPRITE (orange) ===== */
+        .sprite-designer { transform: scale(1.2); }
+        .sprite-designer .pix.t { background: transparent; }
+        .sprite-designer .pix.h { background: #f5a842; }
+        .sprite-designer .pix.e { background: #fff; }
+        .sprite-designer .pix.b { background: #e08030; }
+        .sprite-designer .pix.o { background: #f37021; }
+        .sprite-designer .pix.d { background: #c0561a; }
+        .sprite-designer .pix.s { background: #f59e0b; /* hat */ }
+
+        /* ===== WEB DEV SPRITE (blue) ===== */
+        .sprite-webdev { transform: scale(1.2); }
+        .sprite-webdev .pix.t { background: transparent; }
+        .sprite-webdev .pix.h { background: #60a5fa; }
+        .sprite-webdev .pix.e { background: #fff; }
+        .sprite-webdev .pix.b { background: #3b82f6; }
+        .sprite-webdev .pix.o { background: #2563eb; }
+        .sprite-webdev .pix.d { background: #1a3a6a; }
+        .sprite-webdev .pix.s { background: #93c5fd; }
+
+        /* ===== LEAD SPRITE (gold) ===== */
+        .sprite-lead { transform: scale(1.3); z-index: 11; }
+        .sprite-lead .pix.t { background: transparent; }
+        .sprite-lead .pix.h { background: #f5d872; }
+        .sprite-lead .pix.e { background: #fff; }
+        .sprite-lead .pix.b { background: #f5c842; }
+        .sprite-lead .pix.o { background: #e0a830; }
+        .sprite-lead .pix.d { background: #b08020; }
+        .sprite-lead .pix.s { background: #f5a842; }
+        .sprite-lead .pix.c { background: #f5c842; } /* crown */
+
+        /* ===== BREESY SPRITE (tan dog) ===== */
+        .sprite-breesy { transform: scale(1.1); }
+        .sprite-breesy .pix.t { background: transparent; }
+        .sprite-breesy .pix.h { background: #d4a76a; }
+        .sprite-breesy .pix.e { background: #1a1a2e; }
+        .sprite-breesy .pix.n { background: #1a1a2e; } /* nose */
+        .sprite-breesy .pix.b { background: #c49a5a; }
+        .sprite-breesy .pix.o { background: #a0793a; }
+        .sprite-breesy .pix.d { background: #806030; }
+        .sprite-breesy .pix.s { background: #a0793a; } /* spots */
+        .sprite-breesy .pix.p { background: #d4a76a; } /* paw */
+
+        /* ===== CHARACTER LABELS ===== */
+        .char-label {
+            position: absolute;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 5px;
+            color: #94a3b8;
+            text-shadow: 2px 2px 0 #0a0e17;
+            white-space: nowrap;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .char-level {
+            font-size: 4px;
+            color: #22c55e;
+            text-align: center;
+            margin-top: 1px;
+        }
+
+        /* ===== ACTION BUBBLES (pixel style) ===== */
+        .pixel-bubble {
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #0a0e17;
+            padding: 3px 6px;
+            font-size: 5px;
+            white-space: nowrap;
+            border: 2px solid #3b3f6b;
+            box-shadow: 2px 2px 0 #0a0e17;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 20;
+            font-family: 'Press Start 2P', monospace;
+        }
+        .pixel-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #fff;
+        }
+        .castle:hover .pixel-bubble { opacity: 1; }
+        .sprite-area:hover + .pixel-bubble { opacity: 1; }
+
+        /* ===== STATUS PANEL ===== */
+        .status-panel {
+            background: #1a1c36;
+            border: 2px solid #3b3f6b;
+            padding: 10px 14px;
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        .pixel-stat {
+            text-align: center;
+            padding: 6px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .pixel-stat .pixel-num {
+            font-size: 14px;
+            color: #f5c842;
+            text-shadow: 2px 2px 0 #0a0e17;
+        }
+        .pixel-stat .pixel-lbl {
+            font-size: 6px;
+            color: #64748b;
+            margin-top: 3px;
+            letter-spacing: 1px;
+        }
+
+        /* ===== PATH BETWEEN CASTLES ===== */
+        .path {
+            position: absolute;
+            bottom: 20%;
+            left: 10%;
+            right: 10%;
+            height: 6px;
+            background: #8b7350;
+            border-top: 2px solid #6b5330;
+            z-index: 2;
+        }
+        .path-tile {
+            position: absolute;
+            width: 12px; height: 4px;
+            background: #9b8360;
+            bottom: 20%;
+            transform: translateX(-50%);
+        }
+
+        /* ===== HIERARCHY LINES ===== */
+        .hierarchy-line {
+            position: absolute;
+            z-index: 1;
+            opacity: 0.3;
+        }
+        .hl1 {
+            bottom: 24%;
+            left: 22%;
+            width: 28%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f5c842, transparent);
+        }
+        .hl2 {
+            bottom: 24%;
+            right: 22%;
+            width: 28%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #60a5fa, transparent);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 700px) {
+            .gameboy { padding: 8px; }
+            .screen-top .title { font-size: 7px; }
+            .world { min-height: 360px; }
+            .status-panel { grid-template-columns: repeat(2, 1fr); }
+            .castle-kingdom { left: 50%; transform: translateX(-50%); }
+            .castle-designer { left: 5%; }
+            .castle-webdev { right: 5%; }
+            .castle-breesy { left: 35%; }
+            .sprite-designer { left: 8%; }
+            .sprite-webdev { right: 8%; }
+            .sprite-lead { left: 42%; }
+            .sprite-breesy { left: 35%; }
+        }
+    </style>
+</head>
+<body>
+<div class="gameboy">
+    <!-- Screen Top Bar -->
+    <div class="screen-top">
+        <div class="title">🏰 BREESY'S KINGDOM</div>
+        <div class="hp-bar">
+            <span class="hp-text">HP</span>
+            <div class="hp-fill"><div class="fill"></div></div>
+            <span class="hp-text">100%</span>
+        </div>
+    </div>
+
+    <!-- World Map -->
+    <div class="world" id="world">
+        <!-- Stars -->
+        <div class="pixel-star" style="top:5%;left:10%;animation-delay:0s;"></div>
+        <div class="pixel-star" style="top:8%;left:25%;animation-delay:1s;"></div>
+        <div class="pixel-star" style="top:3%;left:40%;animation-delay:0.5s;"></div>
+        <div class="pixel-star" style="top:10%;left:55%;animation-delay:1.5s;"></div>
+        <div class="pixel-star" style="top:4%;left:70%;animation-delay:2s;"></div>
+        <div class="pixel-star" style="top:9%;left:85%;animation-delay:0.8s;"></div>
+        <div class="pixel-star" style="top:6%;left:92%;animation-delay:1.2s;"></div>
+
+        <!-- Sun -->
+        <div class="pixel-sun"></div>
+
+        <!-- Clouds -->
+        <div class="pixel-cloud" style="top:12%;animation-delay:0s;">
+            <div class="p p2"></div><div class="p"></div><div class="p p3"></div><div class="p"></div>
+        </div>
+        <div class="pixel-cloud" style="top:8%;animation-delay:15s;animation-duration:50s;">
+            <div class="p"></div><div class="p p2"></div><div class="p"></div><div class="p p3"></div>
+        </div>
+
+        <!-- Ground tiles -->
+        <div class="ground"></div>
+
+        <!-- Path -->
+        <div class="path"></div>
+
+        <!-- Hierarchy lines -->
+        <div class="hierarchy-line hl1"></div>
+        <div class="hierarchy-line hl2"></div>
+
+        <!-- ===== CASTLE: OWNER (Center - Highest) ===== -->
+        <div class="castle castle-kingdom" id="castle-lead">
+            <div class="pixel-bubble" style="top:-50px;">Directing the Kingdom 👑</div>
+            <div class="castle-label">⬆ KINGDOM THRONE ⬆</div>
+            <div class="flag">👑</div>
+            <div class="castle-body">
+                <div class="battlement">
+                    <div class="b"></div><div class="b-space"></div>
+                    <div class="b"></div><div class="b-space"></div>
+                    <div class="b"></div>
+                </div>
+                <div class="castle-walls">
+                    <div class="brick" style="width:12px;"></div>
+                    <div class="brick" style="width:12px;"></div>
+                    <div class="brick" style="width:12px;"></div>
+                </div>
+                <div class="castle-roof">
+                    <div class="r-block" style="width:10px;"></div>
+                    <div class="r-block" style="width:10px;"></div>
+                    <div class="r-block" style="width:10px;"></div>
+                </div>
+                <div class="castle-door">
+                    <div class="arch"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CASTLE: DESIGNER (Left Tower) ===== -->
+        <div class="castle castle-designer" id="castle-designer">
+            <div class="pixel-bubble" style="top:-40px;">Creating masterpieces 🎨</div>
+            <div class="castle-label">🎨 CREATIVE TOWER</div>
+            <div class="castle-body">
+                <div class="battlement">
+                    <div class="b"></div><div class="b-space"></div>
+                    <div class="b"></div><div class="b-space"></div>
+                    <div class="b"></div>
+                </div>
+                <div class="castle-walls">
+                    <div class="brick" style="width:10px;"></div>
+                    <div class="brick" style="width:10px;"></div>
+                    <div class="brick" style="width:10px;"></div>
+                </div>
+                <div class="castle-roof">
+                    <div class="r-block" style="width:8px;"></div>
+                    <div class="r-block" style="width:8px;"></div>
+                    <div class="r-block" style="width:8px;"></div>
+                </div>
+                <div class="castle-door">
+                    <div class="arch"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CASTLE: WEB DEV (Right Tower) ===== -->
+        <div class="castle castle-webdev" id="castle-webdev">
+            <div class="pixel-bubble" style="top:-40px;">Deploying code 💻</div>
+            <div class="castle-label">💻 TECH FORTRESS</div>
+            <div class="castle-body">
+                <div class="battlement">
+                    <div class="b"></div><div class="b-space"></div>
+                    <div class="b"></div><div class="b-space"></div>
+                    <div class="b"></div>
+                </div>
+                <div class="castle-walls">
+                    <div class="brick" style="width:10px;"></div>
+                    <div class="brick" style="width:10px;"></div>
+                    <div class="brick" style="width:10px;"></div>
+                </div>
+                <div class="castle-roof">
+                    <div class="r-block" style="width:8px;"></div>
+                    <div class="r-block" style="width:8px;"></div>
+                    <div class="r-block" style="width:8px;"></div>
+                </div>
+                <div class="castle-door">
+                    <div class="arch"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CASTLE: BREESY'S DOGHOUSE ===== -->
+        <div class="castle castle-breesy" id="castle-breesy">
+            <div class="pixel-bubble" style="top:-35px;">Woof! Stay Salty! 🐕</div>
+            <div class="castle-label">🐕 BREESY'S DEN</div>
+            <div class="bone-flag">🦴</div>
+            <div class="castle-body">
+                <div class="castle-walls">
+                    <div class="brick" style="width:8px;"></div>
+                    <div class="brick" style="width:8px;"></div>
+                    <div class="brick" style="width:8px;"></div>
+                </div>
+                <div class="castle-roof">
+                    <div class="r-block" style="width:6px;"></div>
+                    <div class="r-block" style="width:6px;"></div>
+                    <div class="r-block" style="width:6px;"></div>
+                </div>
+                <div class="castle-door">
+                    <div class="arch" style="width:12px;height:8px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PIXEL SPRITE CHARACTERS ===== -->
+        <div class="sprite-area">
+            <!-- Designer Sprite -->
+            <div class="pixel-char char-designer-sprite" style="left:14%;">
+                <div class="pixel-bubble" style="top:-24px;">🎨 Painting...</div>
+                <div class="char-sprite sprite-designer">
+                    <div class="row"><div class="pix t"></div><div class="pix s"></div><div class="pix s"></div><div class="pix t"></div></div>
+                    <div class="row"><div class="pix t"></div><div class="pix h"></div><div class="pix h"></div><div class="pix t"></div></div>
+                    <div class="row"><div class="pix h"></div><div class="pix e"></div><div class="pix e"></div><div class="pix h"></div></div>
+                    <div class="row"><div class="pix o"></div><div class="pix b"></div><div class="pix b"></div><div class="pix o"></div></div>
+                    <div class="row"><div class="pix t"></div><div class="pix o"></div><div class="pix o"></div><div class="pix t"></div></div>
+                    <div class="row"><div class="pix t"></div><div class="pix d"></div><div class="pix d"></div><div class="pix t"></div></div>
+                </div>
+                <div class="char-label">🎨 DESIGNER</div>
+                <div class="char-level">Lv.12</div>
+            </div>
+
+            <!-- Web Dev Sprite -->
+            <div class="pixel-char" style="right:14%;bottom:-4px;">
+                <div class="pixel-bubble" style="top:-24px;">💻 Standing by...</div>
+                <div class="char-sprite sprite-webdev">
+                    <div class="row"><div class="pix t"></div><div class="pix s"></div><div class="pix t"></div><div class="pix t"></div></div>
+                    <div class="row"><div class="pix t"></div><div class="pix h"></div><div class="pix h"></div><div class="pix t"></div></div>
+                    <div class="row"><div class="pix h"></div><div class="pix e"></div><div class="pix e"></div><div class="pix h"></div></div>
+                    <div class="row"><div class="pix o"></div><div class="pix b"></div><div class="pix b"></div><div class="pix o"></div></div>
+                    <div class="row"><div class="pix t"></div><div class="pix o"></div><div class="pix o"></div><div class="pix t"></div></div>
+                    <div class="row"><div class="pix t"></div><div class="pix d"></div><div class="pix d"></div><div class="pix t"></div></div>
+                </div>
+                <div class="char-label">💻 WEB DEV</div>
+                <div class="char-level">Lv.8</div>
+            </div>
+
+            <!-- Lead Sprite (in front of kingdom castle) -->
+            <div class="pixel-char" style="left:44%;bottom:-2px;z-index:12;">
+                <div class="pixel-bubble" style="top:-24px;">👑 Ruling the Kingdom</div>
+                <div class="char-sprite sprite-lead">
+                    <div class="row"><div class="pix t"></div><div class="pix c"></div><div class="pix c"></div><div class="pix t"></div></div>
+                    <div class="row"><div class="pix c"></div><div class="pix h"></div><div class="pix h"></div><div class="pix c"></div></div>
+                    <div class="row"><div class="pix h"></div><div class="pix e"></div><div class="pix e"></div><div class="pix h"></div></div>
+                    <div class="row"><div class="pix o"></div><div class="pix b"></div><div class="pix b"></div><div class="pix o"></div></div>
+                    <div class="row"><div class="pix t"></div><div class="pix o"></div><div class="pix o"></div><div class="pix t"></div></div>
+                    <div class="row"><div class="pix t"></div><div class="pix d"></div><div class="pix d"></div><div class="pix t"></div></div>
+                </div>
+                <div class="char-label" style="color:#f5c842;">👑 OWNER</div>
+                <div class="char-level" style="color:#f5c842;">Lv.99</div>
+            </div>
+
+            <!-- Breesy Sprite -->
+            <div class="pixel-char" style="left:36%;bottom:-6px;">
+                <div class="pixel-bubble" style="top:-24px;">🐕 Beach patrol!</div>
+                <div class="char-sprite sprite-breesy">
+                    <div class="row"><div class="pix t"></div><div class="pix s"></div><div class="pix s"></div><div class="pix t"></div></div>
+                    <div class="row"><div class="pix s"></div><div class="pix h"></div><div class="pix h"></div><div class="pix s"></div></div>
+                    <div class="row"><div class="pix h"></div><div class="pix e"></div><div class="pix e"></div><div class="pix h"></div></div>
+                    <div class="row"><div class="pix h"></div><div class="pix n"></div><div class="pix b"></div><div class="pix h"></div></div>
+                    <div class="row"><div class="pix t"></div><div class="pix o"></div><div class="pix o"></div><div class="pix t"></div></div>
+                    <div class="row"><div class="pix t"></div><div class="pix p"></div><div class="pix p"></div><div class="pix t"></div></div>
+                </div>
+                <div class="char-label">🐕 BREESY</div>
+                <div class="char-level">⭐ Loyal AF</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Status Panel -->
+    <div class="status-panel">
+        <div class="pixel-stat">
+            <div class="pixel-num">12</div>
+            <div class="pixel-lbl">QUESTS DONE</div>
+        </div>
+        <div class="pixel-stat">
+            <div class="pixel-num">104</div>
+            <div class="pixel-lbl">DESIGNS</div>
+        </div>
+        <div class="pixel-stat">
+            <div class="pixel-num">30+</div>
+            <div class="pixel-lbl">PRODUCTS</div>
+        </div>
+        <div class="pixel-stat">
+            <div class="pixel-num">🐕</div>
+            <div class="pixel-lbl">STAY SALTY</div>
+        </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:6px;color:#475569;letter-spacing:1px;">
+        <span>Ⓡ 2026 BREESY'S ISLAND</span>
+        <span>🔗 breesysisland.com</span>
+    </div>
+</div>
+
+<script>
+    // Animate sprites — bob up and down
+    const sprites = document.querySelectorAll('.pixel-char');
+    sprites.forEach((sprite, i) => {
+        let y = 0;
+        let dir = 1;
+        const speed = 0.3 + Math.random() * 0.3;
+        const amp = 2 + Math.random() * 2;
+        setInterval(() => {
+            y += dir * speed;
+            if (y > amp || y < -amp) dir *= -1;
+            const currentBottom = parseFloat(sprite.style.bottom) || (i === 3 ? -6 : i === 2 ? -2 : -4);
+            sprite.style.bottom = (currentBottom + dir * speed * 0.5) + 'px';
+        }, 50);
+    });
+
+    // Cycle speech bubbles
+    const speeches = {
+        '#castle-lead .pixel-bubble': [
+            'Directing the Kingdom 👑',
+            'Approving new designs! ✅',
+            'Growing the empire! 📈',
+            'Visionary moves 🧠',
+            'Delegating quests! ⚔️'
+        ],
+        '#castle-designer .pixel-bubble': [
+            'Creating masterpieces 🎨',
+            'Rendering pixel art! 📸',
+            'Tommy Bahama vibes! 🌴',
+            'Breesy edition incoming! 🐕',
+            'Color palette locked! 🎯'
+        ],
+        '#castle-webdev .pixel-bubble': [
+            'Deploying code 💻',
+            'Optimizing performance! ⚡',
+            'Git push complete! ✅',
+            'Compiling assets... 🔧',
+            'Standing by... 💤'
+        ],
+        '#castle-breesy .pixel-bubble': [
+            'Woof! Stay Salty! 🐕',
+            'Chasing waves! 🌊',
+            'Guarding the castle! 🏰',
+            'Napping in the sun... ☀️',
+            'Inspecting designs! 👀'
+        ]
+    };
+
+    setInterval(() => {
+        Object.entries(speeches).forEach(([selector, msgs]) => {
+            const el = document.querySelector(selector);
+            if (el) {
+                el.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+            }
+        });
+    }, 3500);
+</script>
+</body>
+</html>
