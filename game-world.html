@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breesy's Island — Live Game World</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0e17;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .game-hud {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ===== BACKGROUND ===== */
+        .game-bg {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, #0a0e17 0%, #0f1525 40%, #141b2e 100%);
+            z-index: 0;
+        }
+        .game-bg::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                radial-gradient(ellipse at 20% 50%, rgba(0,100,255,0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(245,200,66,0.02) 0%, transparent 50%);
+        }
+        .grid-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+            animation: gridPulse 8s ease-in-out infinite;
+        }
+        @keyframes gridPulse {
+            0%,100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* ===== TOP HUD BAR ===== */
+        .hud-top {
+            position: absolute; top: 0; left: 0; right: 0;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(10,14,23,0.95) 0%, transparent 100%);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hud-top .game-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: #f5c842;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+        }
+        .hud-top .game-title span { color: #60a5fa; }
+        .hud-stats {
+            display: flex; gap: 20px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+        }
+        .hud-stats .s {
+            display: flex; align-items: center; gap: 6px;
+            color: #94a3b8;
+        }
+        .hud-stats .s .v { color: #f5c842; }
+        .hud-stats .s .v.green { color: #22c55e; }
+        .hud-stats .s .v.blue { color: #60a5fa; }
+        .hud-stats .s .v.orange { color: #f37021; }
+
+        /* ===== MAIN GAME AREA ===== */
+        .game-area {
+            position: absolute;
+            top: 60px; bottom: 60px; left: 0; right: 300px;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        /* ===== CHARACTER WINDOWS ===== */
+        .char-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .game-char {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            animation: charAppear 0.5s ease-out backwards;
+        }
+        .game-char:nth-child(2) { animation-delay: 0.1s; }
+        .game-char:nth-child(3) { animation-delay: 0.2s; }
+        .game-char:nth-child(4) { animation-delay: 0.3s; }
+        @keyframes charAppear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .game-char:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
+
+        .game-char .char-top {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
+        }
+        .game-char .char-icon {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.06);
+        }
+        .game-char .char-info { flex: 1; }
+        .game-char .char-name {
+            font-size: 14px; font-weight: 700; color: #fff;
+        }
+        .game-char .char-title {
+            font-size: 10px; color: rgba(255,255,255,0.3);
+            font-weight: 400; margin-top: 1px;
+        }
+
+        .game-char .char-level {
+            font-size: 10px; font-weight: 700;
+            padding: 3px 10px; border-radius: 8px;
+            text-align: center;
+        }
+
+        /* Character colors */
+        .char-marlin .char-icon { background: rgba(243,112,33,0.15); border-color: rgba(243,112,33,0.2); }
+        .char-marlin .char-level { background: rgba(243,112,33,0.12); color: #f37021; }
+        .char-marlin { border-left: 3px solid #f37021; }
+
+        .char-cypher .char-icon { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.2); }
+        .char-cypher .char-level { background: rgba(96,165,250,0.12); color: #60a5fa; }
+        .char-cypher { border-left: 3px solid #60a5fa; }
+
+        .char-captain .char-icon { background: rgba(245,200,66,0.15); border-color: rgba(245,200,66,0.2); }
+        .char-captain .char-level { background: rgba(245,200,66,0.12); color: #f5c842; }
+        .char-captain { border-left: 3px solid #f5c842; }
+
+        .char-breesy .char-icon { background: rgba(212,167,106,0.15); border-color: rgba(212,167,106,0.2); }
+        .char-breesy .char-level { background: rgba(212,167,106,0.12); color: #d4a76a; }
+        .char-breesy { border-left: 3px solid #d4a76a; }
+
+        /* HP/EXP Bars */
+        .char-bars { margin-top: 10px; }
+        .bar-row { margin-bottom: 4px; }
+        .bar-row .bar-lbl {
+            display: flex; justify-content: space-between;
+            font-size: 8px; color: rgba(255,255,255,0.3);
+            margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .bar-track {
+            height: 6px; background: rgba(255,255,255,0.04);
+            border-radius: 4px; overflow: hidden;
+        }
+        .bar-track .bar-fill {
+            height: 100%; border-radius: 4px;
+            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .bar-hp .bar-fill { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .bar-exp .bar-fill { background: linear-gradient(90deg, #60a5fa, #93c5fd); }
+        .bar-creativity .bar-fill { background: linear-gradient(90deg, #f37021, #f59e0b); }
+
+        /* Status Chip */
+        .char-status {
+            display: inline-block;
+            padding: 2px 10px; border-radius: 20px;
+            font-size: 8px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-top: 8px;
+        }
+        .status-online { background: rgba(34,197,94,0.12); color: #22c55e; }
+        .status-idle { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .status-king { background: rgba(245,200,66,0.12); color: #f5c842; }
+        .status-beach { background: rgba(212,167,106,0.12); color: #d4a76a; }
+
+        /* ===== ACTIVITY LOG (Right Panel) ===== */
+        .activity-panel {
+            position: absolute;
+            top: 60px; right: 0; bottom: 60px;
+            width: 300px;
+            z-index: 10;
+            background: rgba(10,14,23,0.85);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255,255,255,0.06);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        .activity-panel .panel-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; justify-content: space-between;
+        }
+        .activity-panel .panel-title .live { color: #22c55e; font-size: 6px; }
+        .activity-feed {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .activity-feed::-webkit-scrollbar { width: 3px; }
+        .activity-feed::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        .act-item {
+            display: flex;
+            gap: 8px;
+            padding: 6px 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            animation: actSlide 0.3s ease-out;
+        }
+        @keyframes actSlide { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+        .act-item .act-icon {
+            width: 22px; height: 22px;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+        .act-item .act-text { flex: 1; }
+        .act-item .act-line {
+            font-size: 10px; color: #e2e8f0;
+            font-weight: 500;
+        }
+        .act-item .act-sub {
+            font-size: 8px; color: rgba(255,255,255,0.25);
+            margin-top: 1px;
+        }
+        .act-item .act-time {
+            font-size: 8px; color: rgba(255,255,255,0.15);
+            min-width: 40px; text-align: right;
+        }
+        .act-marlin .act-icon { background: rgba(243,112,33,0.15); }
+        .act-cypher .act-icon { background: rgba(96,165,250,0.15); }
+        .act-captain .act-icon { background: rgba(245,200,66,0.15); }
+        .act-breesy .act-icon { background: rgba(212,167,106,0.15); }
+        .act-system .act-icon { background: rgba(255,255,255,0.05); }
+
+        /* ===== BOTTOM HUD ===== */
+        .hud-bottom {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            z-index: 10;
+            background: linear-gradient(0deg, rgba(10,14,23,0.95) 0%, transparent 100%);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .hud-bottom .menu-item {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+            color: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hud-bottom .menu-item:hover { color: #f5c842; }
+        .hud-bottom .menu-item.active { color: #60a5fa; }
+        .hud-bottom .menu-item .m-icon { font-size: 12px; }
+        .hud-bottom .spacer { flex: 1; }
+        .hud-bottom .version {
+            font-size: 8px; color: rgba(255,255,255,0.15);
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        /* ===== PARTICLE EFFECTS ===== */
+        .particle {
+            position: absolute;
+            width: 2px; height: 2px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            animation: particleFloat linear infinite;
+            z-index: 0;
+        }
+        @keyframes particleFloat {
+            from { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            to { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        @media (max-width: 900px) {
+            .game-area { right: 0; bottom: 100px; padding: 20px; top: 80px; }
+            .char-row { grid-template-columns: 1fr; }
+            .activity-panel { position: fixed; top: auto; bottom: 0; left: 0; right: 0; width: 100%; height: 200px; border-left: none; border-top: 1px solid rgba(255,255,255,0.06); }
+            .hud-top .game-title { font-size: 7px; }
+            .hud-stats { gap: 10px; font-size: 6px; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-hud">
+    <!-- BG Layers -->
+    <div class="game-bg"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Particles -->
+    <div class="particle" style="left:10%;bottom:0;animation-duration:12s;animation-delay:0s;"></div>
+    <div class="particle" style="left:25%;bottom:0;animation-duration:15s;animation-delay:2s;"></div>
+    <div class="particle" style="left:45%;bottom:0;animation-duration:10s;animation-delay:4s;"></div>
+    <div class="particle" style="left:65%;bottom:0;animation-duration:18s;animation-delay:1s;"></div>
+    <div class="particle" style="left:80%;bottom:0;animation-duration:14s;animation-delay:3s;"></div>
+    <div class="particle" style="left:90%;bottom:0;animation-duration:11s;animation-delay:5s;"></div>
+
+    <!-- Top HUD -->
+    <div class="hud-top">
+        <div class="game-title">🏝️ BREESY'S <span>ISLAND</span></div>
+        <div class="hud-stats">
+            <div class="s">QUESTS <span class="v">14</span></div>
+            <div class="s">DESIGNS <span class="v blue">104</span></div>
+            <div class="s">PRODUCTS <span class="v orange">40+</span></div>
+            <div class="s">⚡ <span class="v green">ONLINE</span></div>
+        </div>
+    </div>
+
+    <!-- Main Game Area -->
+    <div class="game-area">
+        <div class="char-row">
+            <!-- Marlin - Designer -->
+            <div class="game-char char-marlin">
+                <div class="char-top">
+                    <div class="char-icon">🎨</div>
+                    <div class="char-info">
+                        <div class="char-name">Marlin</div>
+                        <div class="char-title">🎣 Fishing Apparel Designer</div>
+                    </div>
+                    <div class="char-level">Lv.12</div>
+                </div>
+                <div class="char-bars">
+                    <div class="bar-row bar-hp">
+                        <div class="bar-lbl"><span>HP</span><span>92/100</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:92%"></div></div>
+                    </div>
+                    <div class="bar-row bar-creativity">
+                        <div class="bar-lbl"><span>CREATIVITY</span><span>78%</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:78%"></div></div>
+                    </div>
+                </div>
+                <div class="char-status status-online">● CREATING DESIGNS</div>
+            </div>
+
+            <!-- Cypher - Web Dev -->
+            <div class="game-char char-cypher">
+                <div class="char-top">
+                    <div class="char-icon">💻</div>
+                    <div class="char-info">
+                        <div class="char-name">Cypher</div>
+                        <div class="char-title">⚡ E-Commerce Developer</div>
+                    </div>
+                    <div class="char-level">Lv.8</div>
+                </div>
+                <div class="char-bars">
+                    <div class="bar-row bar-hp">
+                        <div class="bar-lbl"><span>HP</span><span>74/100</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:74%"></div></div>
+                    </div>
+                    <div class="bar-row bar-exp">
+                        <div class="bar-lbl"><span>CODE</span><span>55%</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:55%"></div></div>
+                    </div>
+                </div>
+                <div class="char-status status-idle">● IDLE</div>
+            </div>
+        </div>
+
+        <div class="char-row">
+            <!-- Captain - Owner/Lead -->
+            <div class="game-char char-captain">
+                <div class="char-top">
+                    <div class="char-icon">👑</div>
+                    <div class="char-info">
+                        <div class="char-name">Captain</div>
+                        <div class="char-title">🧠 Team Lead · Strategist</div>
+                    </div>
+                    <div class="char-level">Lv.99</div>
+                </div>
+                <div class="char-bars">
+                    <div class="bar-row bar-hp">
+                        <div class="bar-lbl"><span>HP</span><span>MAX</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+                    </div>
+                    <div class="bar-row bar-exp">
+                        <div class="bar-lbl"><span>VISION</span><span>100%</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+                    </div>
+                </div>
+                <div class="char-status status-king">👑 DIRECTING</div>
+            </div>
+
+            <!-- Breesy -->
+            <div class="game-char char-breesy">
+                <div class="char-top">
+                    <div class="char-icon">🐕</div>
+                    <div class="char-info">
+                        <div class="char-name">Breesy</div>
+                        <div class="char-title">🏖️ Mascot · Tan Hound</div>
+                    </div>
+                    <div class="char-level">⭐ MAX</div>
+                </div>
+                <div class="char-bars">
+                    <div class="bar-row bar-hp">
+                        <div class="bar-lbl"><span>HAPPINESS</span><span>∞</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+                    </div>
+                    <div class="bar-row bar-exp">
+                        <div class="bar-lbl"><span>WAG</span><span>∞%</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+                    </div>
+                </div>
+                <div class="char-status status-beach">🏖️ BEACH PATROL</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Activity Panel -->
+    <div class="activity-panel">
+        <div class="panel-title">
+            <span>📡 LIVE ACTIVITY</span>
+            <span class="live">● STREAMING</span>
+        </div>
+        <div class="activity-feed" id="feed">
+            <div class="act-item act-marlin">
+                <div class="act-icon">🎨</div>
+                <div class="act-text">
+                    <div class="act-line">Marlin completed Breesy Hat Collection</div>
+                    <div class="act-sub">10 hats added with Headwear section</div>
+                </div>
+                <div class="act-time">now</div>
+            </div>
+            <div class="act-item act-system">
+                <div class="act-icon">🚀</div>
+                <div class="act-text">
+                    <div class="act-line">Kingdom v2.0 dashboard deployed</div>
+                    <div class="act-sub">3D character cards + live activity feed</div>
+                </div>
+                <div class="act-time">1m</div>
+            </div>
+            <div class="act-item act-captain">
+                <div class="act-icon">👑</div>
+                <div class="act-text">
+                    <div class="act-line">Captain approved Breesy Hat designs</div>
+                    <div class="act-sub">All 10 hats greenlit for production</div>
+                </div>
+                <div class="act-time">5m</div>
+            </div>
+            <div class="act-item act-marlin">
+                <div class="act-icon">🎨</div>
+                <div class="act-text">
+                    <div class="act-line">Marlin created 5 Breesy Tumblers</div>
+                    <div class="act-sub">Drinkware section added to store</div>
+                </div>
+                <div class="act-time">12m</div>
+            </div>
+            <div class="act-item act-marlin">
+                <div class="act-icon">🎨</div>
+                <div class="act-text">
+                    <div class="act-line">Marlin designed 13 Performance LS Shirts</div>
+                    <div class="act-sub">Breesy Edition + fish-centric designs</div>
+                </div>
+                <div class="act-time">2h</div>
+            </div>
+            <div class="act-item act-cypher">
+                <div class="act-icon">💻</div>
+                <div class="act-text">
+                    <div class="act-line">Cypher deployed React e-commerce site</div>
+                    <div class="act-sub">GitHub Pages + Quick Add cart system</div>
+                </div>
+                <div class="act-time">3h</div>
+            </div>
+            <div class="act-item act-system">
+                <div class="act-icon">🌐</div>
+                <div class="act-text">
+                    <div class="act-line">breesysisland.com DNS configured</div>
+                    <div class="act-sub">Custom domain pointing to GitHub Pages</div>
+                </div>
+                <div class="act-time">6h</div>
+            </div>
+            <div class="act-item act-marlin">
+                <div class="act-icon">🎨</div>
+                <div class="act-text">
+                    <div class="act-line">Marlin created 21 product mockups</div>
+                    <div class="act-sub">Photorealistic tee, hat, tumbler renders</div>
+                </div>
+                <div class="act-time">1d</div>
+            </div>
+            <div class="act-item act-marlin">
+                <div class="act-icon">🎨</div>
+                <div class="act-text">
+                    <div class="act-line">Marlin designed 104 total assets</div>
+                    <div class="act-sub">v1-v5 collections, Tommy Bahama style</div>
+                </div>
+                <div class="act-time">3d</div>
+            </div>
+            <div class="act-item act-captain">
+                <div class="act-icon">👑</div>
+                <div class="act-text">
+                    <div class="act-line">Captain assembled the team</div>
+                    <div class="act-sub">Designer + Web Dev + Strategist hired</div>
+                </div>
+                <div class="act-time">3d</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom HUD -->
+    <div class="hud-bottom">
+        <div class="menu-item active"><span class="m-icon">👥</span> PARTY</div>
+        <div class="menu-item"><span class="m-icon">📋</span> QUESTS</div>
+        <div class="menu-item"><span class="m-icon">🎒</span> INVENTORY</div>
+        <div class="menu-item"><span class="m-icon">🗺️</span> MAP</div>
+        <div class="menu-item"><span class="m-icon">⚙️</span> SYSTEM</div>
+        <div class="spacer"></div>
+        <div class="version">v2.0.1</div>
+    </div>
+</div>
+
+<script>
+    // Simulate live activity
+    const activities = [
+        { icon: '🎨', cls: 'act-marlin', lines: ['Marlin sketching new designs...', 'Working on Tommy Bahama patterns'], subs: ['3 new concepts in progress', 'Color palette being refined'] },
+        { icon: '💻', cls: 'act-cypher', lines: ['Cypher optimizing site performance...', 'Cypher checking deployment logs'], subs: ['Bundle size reduced by 12%', 'No errors found'] },
+        { icon: '👑', cls: 'act-captain', lines: ['Captain reviewing designs...', 'Captain planning next phase'], subs: ['2 items pending approval', 'Q4 strategy in progress'] },
+        { icon: '🐕', cls: 'act-breesy', lines: ['Breesy inspecting new gear! 👀', 'Breesy guarding the island!'], subs: ['All products meet wag standards ✅', 'Beach perimeter secure 🐾'] },
+        { icon: '🚀', cls: 'act-system', lines: ['Auto-deploy running...', 'System health check passed'], subs: ['GitHub Pages synced', 'All agents operational'] }
+    ];
+
+    setInterval(() => {
+        const feed = document.getElementById('feed');
+        const pick = activities[Math.floor(Math.random() * activities.length)];
+        const now = new Date();
+        const time = now.getMinutes() + 'm';
+        
+        const item = document.createElement('div');
+        item.className = `act-item ${pick.cls}`;
+        item.innerHTML = `
+            <div class="act-icon">${pick.icon}</div>
+            <div class="act-text">
+                <div class="act-line">${pick.lines[Math.floor(Math.random() * pick.lines.length)]}</div>
+                <div class="act-sub">${pick.subs[Math.floor(Math.random() * pick.subs.length)]}</div>
+            </div>
+            <div class="act-time">${time}</div>
+        `;
+        item.style.animation = 'actSlide 0.3s ease-out';
+        
+        feed.insertBefore(item, feed.firstChild);
+        
+        // Keep max 15 items
+        while (feed.children.length > 15) {
+            feed.removeChild(feed.lastChild);
+        }
+    }, 4000);
+</script>
+</body>
+</html>
