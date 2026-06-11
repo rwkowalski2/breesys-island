@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breesy's Island — Living Ecosystem</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0a0e17;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ===== SKY ===== */
+        .sky {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 55%;
+            background: linear-gradient(180deg,
+                #1a1a3e 0%,
+                #2d1b4e 20%,
+                #f5a842 45%,
+                #f5c842 55%,
+                #f5d872 65%
+            );
+            transition: background 2s ease;
+        }
+
+        /* Sun */
+        .sun {
+            position: absolute;
+            top: 12%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #fff5a0, #f5c842 40%, transparent 70%);
+            border-radius: 50%;
+            box-shadow: 0 0 60px rgba(245,200,66,0.4), 0 0 120px rgba(245,200,66,0.15);
+            animation: sunPulse 4s ease-in-out infinite;
+        }
+        @keyframes sunPulse {
+            0%,100% { transform: scale(1); box-shadow: 0 0 60px rgba(245,200,66,0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(245,200,66,0.5); }
+        }
+
+        /* Clouds */
+        .cloud {
+            position: absolute;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50px;
+            animation: cloudDrift linear infinite;
+        }
+        .cloud:nth-child(1) { top: 8%; width: 120px; height: 30px; animation-duration: 30s; left: -150px; }
+        .cloud:nth-child(2) { top: 15%; width: 80px; height: 20px; animation-duration: 25s; left: -100px; animation-delay: 5s; }
+        .cloud:nth-child(3) { top: 5%; width: 100px; height: 25px; animation-duration: 35s; left: -120px; animation-delay: 10s; }
+        @keyframes cloudDrift {
+            from { transform: translateX(-200px); }
+            to { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        /* ===== OCEAN ===== */
+        .ocean {
+            position: absolute;
+            top: 48%;
+            left: 0; right: 0;
+            height: 52%;
+            background: linear-gradient(180deg,
+                #0a4a6a 0%,
+                #0d5e7a 20%,
+                #0a4a6a 50%,
+                #083a5a 100%
+            );
+        }
+        .ocean::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 0; right: 0;
+            height: 16px;
+            background: linear-gradient(90deg,
+                transparent 0%, rgba(255,255,255,0.05) 20%,
+                transparent 40%, rgba(255,255,255,0.08) 60%,
+                transparent 80%, rgba(255,255,255,0.05) 100%
+            );
+            animation: waveMove 3s ease-in-out infinite;
+        }
+        @keyframes waveMove {
+            0%,100% { transform: translateX(0); }
+            50% { transform: translateX(20px); }
+        }
+
+        /* ===== ISLAND ===== */
+        .island {
+            position: absolute;
+            bottom: 18%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            height: 160px;
+        }
+
+        .island-ground {
+            position: absolute;
+            bottom: 0;
+            left: 0; right: 0;
+            height: 90px;
+            background: linear-gradient(180deg, #d4a96a 0%, #b8863e 30%, #8b6914 70%, #6b4f12 100%);
+            border-radius: 50% 50% 20% 20% / 60% 60% 20% 20%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .island-ground::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 5%;
+            width: 90%;
+            height: 8px;
+            background: linear-gradient(90deg, transparent, #7ec850 30%, #6ab840 70%, transparent);
+            border-radius: 50%;
+        }
+
+        /* Beach sand edge */
+        .sand-edge {
+            position: absolute;
+            top: -6px;
+            left: 3%;
+            width: 94%;
+            height: 12px;
+            background: linear-gradient(180deg, #f5deb3, #e8c97a);
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        /* Palm trees */
+        .palm-tree {
+            position: absolute;
+            bottom: 60px;
+        }
+        .palm-tree.t1 { left: 30px; }
+        .palm-tree.t2 { right: 40px; }
+        .palm-tree .trunk {
+            width: 10px;
+            height: 80px;
+            background: linear-gradient(90deg, #5a3d1a, #8b6914, #5a3d1a);
+            margin: 0 auto;
+            border-radius: 4px;
+            transform-origin: bottom center;
+        }
+        .palm-tree.t1 .trunk { transform: rotate(-10deg); }
+        .palm-tree.t2 .trunk { transform: rotate(8deg); }
+        .palm-tree .fronds {
+            position: absolute;
+            top: -20px;
+            left: -40px;
+            width: 90px;
+            height: 60px;
+        }
+        .palm-tree .frond {
+            position: absolute;
+            width: 40px;
+            height: 8px;
+            background: #2d8a2d;
+            border-radius: 4px;
+            transform-origin: center left;
+        }
+        .palm-tree .frond:nth-child(1) { transform: rotate(-30deg); top: 10px; }
+        .palm-tree .frond:nth-child(2) { transform: rotate(0deg); top: 25px; }
+        .palm-tree .frond:nth-child(3) { transform: rotate(30deg); top: 40px; }
+        .palm-tree .frond:nth-child(4) { transform: rotate(-60deg); top: 0; }
+        .palm-tree .frond:nth-child(5) { transform: rotate(60deg); top: 48px; }
+        .palm-tree .coconut {
+            width: 8px;
+            height: 10px;
+            background: #5a3d1a;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            left: 1px;
+        }
+
+        /* ===== CHARACTERS ===== */
+        .characters-area {
+            position: absolute;
+            bottom: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 650px;
+            height: 120px;
+            z-index: 10;
+        }
+
+        .character {
+            position: absolute;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+
+        /* Character sprite body */
+        .char-body {
+            width: 40px;
+            height: 50px;
+            border-radius: 10px 10px 4px 4px;
+            position: relative;
+            animation: bob 2s ease-in-out infinite;
+        }
+        @keyframes bob {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .char-body .head {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .char-body .eyes {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+        .char-body .eye {
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+        }
+        .char-body .legs {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .char-body .leg {
+            width: 6px;
+            height: 10px;
+            border-radius: 2px;
+            animation: walk 0.8s ease-in-out infinite;
+        }
+        .char-body .leg:first-child { animation-delay: 0s; }
+        .char-body .leg:last-child { animation-delay: 0.4s; }
+        @keyframes walk {
+            0%,100% { transform: rotate(-8deg); }
+            50% { transform: rotate(8deg); }
+        }
+
+        /* Character hat/accessories */
+        .char-hat {
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            z-index: 2;
+        }
+
+        /* Character name tag */
+        .char-name {
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 8px;
+            font-family: 'Press Start 2P', monospace;
+            white-space: nowrap;
+            margin-top: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+            letter-spacing: 0.5px;
+        }
+        .char-status {
+            font-size: 7px;
+            color: #94a3b8;
+            margin-top: 2px;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        /* ===== SPEECH BUBBLE ===== */
+        .speech-bubble {
+            position: absolute;
+            top: -65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            color: #1a1a2e;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 9px;
+            white-space: nowrap;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            pointer-events: none;
+            z-index: 20;
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid rgba(255,255,255,0.95);
+        }
+        .character:hover .speech-bubble { opacity: 1; }
+        .character.active-task .speech-bubble { opacity: 1; }
+
+        /* Character positions */
+        .char-designer { left: 50px; }
+        .char-webdev { left: 220px; }
+        .char-breesy { right: 50px; }
+        .char-lead { left: 400px; }
+
+        /* Designer colors */
+        .char-designer .char-body { background: linear-gradient(135deg, #f37021, #f59e0b); }
+        .char-designer .char-body .head { background: #f5a842; }
+        .char-designer .char-body .leg { background: #c0561a; }
+
+        /* Web Dev colors */
+        .char-webdev .char-body { background: linear-gradient(135deg, #3b82f6, #6366f1); }
+        .char-webdev .char-body .head { background: #60a5fa; }
+        .char-webdev .char-body .leg { background: #2563eb; }
+
+        /* Breesy (the dog) */
+        .char-breesy .char-body {
+            background: linear-gradient(135deg, #d4a76a, #c49a5a);
+            width: 36px;
+            height: 32px;
+            border-radius: 18px 18px 8px 8px;
+            animation: wag 1s ease-in-out infinite;
+        }
+        @keyframes wag {
+            0%,100% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+        }
+        .char-breesy .char-body .head {
+            width: 24px;
+            height: 22px;
+            background: #c49a5a;
+            top: -14px;
+            border-radius: 12px 12px 8px 8px;
+        }
+        .char-breesy .char-body .head::after {
+            content: '👃';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 6px;
+        }
+        .char-breesy .ears {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .char-breesy .ear {
+            width: 8px;
+            height: 12px;
+            background: #a0793a;
+            border-radius: 4px 4px 0 0;
+        }
+        .char-breesy .char-body .eye { background: #1a1a2e; width: 3px; height: 3px; }
+        .char-breesy .char-body .leg { background: #a0793a; }
+        .char-breesy .tail {
+            position: absolute;
+            right: -8px;
+            top: 0;
+            width: 10px;
+            height: 5px;
+            background: #c49a5a;
+            border-radius: 0 5px 5px 0;
+            transform-origin: left center;
+            animation: tailWag 0.5s ease-in-out infinite;
+        }
+        @keyframes tailWag {
+            0%,100% { transform: rotate(-20deg); }
+            50% { transform: rotate(20deg); }
+        }
+
+        /* Lead (you) */
+        .char-lead .char-body { background: linear-gradient(135deg, #f5c842, #f5a842); }
+        .char-lead .char-body .head { background: #f5d872; }
+        .char-lead .char-body .leg { background: #c99a2a; }
+        .char-lead .crown {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            animation: crownBob 3s ease-in-out infinite;
+        }
+        @keyframes crownBob {
+            0%,100% { transform: translateX(-50%) rotate(-5deg); }
+            50% { transform: translateX(-50%) rotate(5deg); }
+        }
+
+        /* ===== ACTION INDICATORS ===== */
+        .action-indicator {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .action-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+        .action-dot:nth-child(2) { animation-delay: 0.2s; }
+        .action-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dotPulse {
+            0%,100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .char-designer .action-dot { background: #f37021; }
+        .char-webdev .action-dot { background: #60a5fa; }
+        .char-lead .action-dot { background: #f5c842; }
+        .char-breesy .action-dot { background: #22c55e; }
+
+        /* ===== WORKSPACE DESKS ===== */
+        .desk {
+            position: absolute;
+            bottom: 2px;
+            width: 50px;
+            height: 6px;
+            background: linear-gradient(180deg, #8b6914, #5a3d1a);
+            border-radius: 2px;
+            z-index: 0;
+        }
+        .desk.d1 { left: 45px; }
+        .desk.d2 { left: 215px; }
+        .desk.d3 { left: 395px; }
+        .desk.d4 { right: 45px; }
+
+        /* Glow under characters */
+        .char-glow {
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 6px;
+            border-radius: 50%;
+            opacity: 0.3;
+            z-index: -1;
+        }
+        .char-designer .char-glow { background: #f37021; box-shadow: 0 0 15px #f37021; }
+        .char-webdev .char-glow { background: #3b82f6; box-shadow: 0 0 15px #3b82f6; }
+        .char-breesy .char-glow { background: #22c55e; box-shadow: 0 0 15px #22c55e; }
+        .char-lead .char-glow { background: #f5c842; box-shadow: 0 0 15px #f5c842; }
+
+        /* ===== STATUS PANEL ===== */
+        .status-panel {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 14px 18px;
+            z-index: 100;
+            min-width: 200px;
+        }
+        .status-panel h3 {
+            font-size: 9px;
+            color: #f5c842;
+            font-family: 'Press Start 2P', monospace;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 11px;
+        }
+        .status-row .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        .status-row .dot.online { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+        .status-row .dot.idle { background: #f59e0b; }
+        .status-row .name { color: #e2e8f0; flex: 1; }
+        .status-row .state { font-size: 9px; color: #64748b; }
+
+        /* ===== TICKER ===== */
+        .ticker {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 6px 20px;
+            z-index: 100;
+            max-width: 90%;
+            overflow: hidden;
+        }
+        .ticker-text {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+            color: #94a3b8;
+            animation: tickerScroll 20s linear infinite;
+            white-space: nowrap;
+        }
+        @keyframes tickerScroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* ===== FLOATING ELEMENTS ===== */
+        .float-element {
+            position: absolute;
+            font-size: 12px;
+            opacity: 0.4;
+            animation: floatAround 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes floatAround {
+            0%,100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(5deg); }
+            75% { transform: translateY(5px) rotate(-5deg); }
+        }
+
+        /* Stars */
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%,100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 700px) {
+            .island { width: 95%; bottom: 25%; }
+            .characters-area { width: 90%; }
+            .status-panel { top: 8px; right: 8px; padding: 10px 12px; min-width: 140px; }
+            .char-designer { left: 5%; }
+            .char-webdev { left: 28%; }
+            .char-lead { left: 52%; }
+            .char-breesy { right: 5%; }
+            .char-name { font-size: 6px; }
+            .sun { width: 50px; height: 50px; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <!-- Sky -->
+    <div class="sky">
+        <div class="sun"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <!-- Stars -->
+        <div class="star" style="top:5%;left:10%;animation-delay:0.5s;"></div>
+        <div class="star" style="top:8%;left:30%;animation-delay:1.2s;"></div>
+        <div class="star" style="top:3%;left:60%;animation-delay:0.8s;"></div>
+        <div class="star" style="top:12%;left:80%;animation-delay:2s;"></div>
+        <div class="star" style="top:6%;left:50%;animation-delay:1.5s;"></div>
+        <!-- Floating elements -->
+        <span class="float-element" style="top:20%;left:15%;animation-delay:0s;">🦅</span>
+        <span class="float-element" style="top:25%;right:20%;animation-delay:3s;">🦜</span>
+        <span class="float-element" style="top:30%;left:5%;animation-delay:5s;">🌴</span>
+    </div>
+
+    <!-- Ocean -->
+    <div class="ocean">
+        <span class="float-element" style="bottom:30%;left:10%;animation-delay:2s;font-size:18px;">🐬</span>
+        <span class="float-element" style="bottom:20%;right:15%;animation-delay:4s;font-size:14px;">🐟</span>
+        <span class="float-element" style="bottom:40%;left:30%;animation-delay:6s;font-size:12px;">🌊</span>
+    </div>
+
+    <!-- Island -->
+    <div class="island">
+        <div class="island-ground">
+            <div class="sand-edge"></div>
+        </div>
+        <div class="palm-tree t1">
+            <div class="trunk"></div>
+            <div class="fronds">
+                <div class="frond"></div>
+                <div class="frond"></div>
+                <div class="frond"></div>
+                <div class="frond"></div>
+                <div class="frond"></div>
+                <div class="coconut"></div>
+            </div>
+        </div>
+        <div class="palm-tree t2">
+            <div class="trunk"></div>
+            <div class="fronds">
+                <div class="frond"></div>
+                <div class="frond"></div>
+                <div class="frond"></div>
+                <div class="frond"></div>
+                <div class="frond"></div>
+                <div class="coconut"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Characters Area -->
+    <div class="characters-area">
+        <!-- Desk spots -->
+        <div class="desk d1"></div>
+        <div class="desk d2"></div>
+        <div class="desk d3"></div>
+        <div class="desk d4"></div>
+
+        <!-- Character: Designer -->
+        <div class="character char-designer active-task" id="char-designer">
+            <div class="speech-bubble">Creating new designs... 🎨</div>
+            <div class="char-hat">🎧</div>
+            <div class="char-body">
+                <div class="head">
+                    <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+                </div>
+                <div class="legs"><div class="leg"></div><div class="leg"></div></div>
+            </div>
+            <div class="char-glow"></div>
+            <div class="char-name">🎨 DESIGNER</div>
+            <div class="char-status">Lv.12 · Creating</div>
+            <div class="action-indicator"><div class="action-dot"></div><div class="action-dot"></div><div class="action-dot"></div></div>
+        </div>
+
+        <!-- Character: Web Developer -->
+        <div class="character char-webdev" id="char-webdev">
+            <div class="speech-bubble">Standing by... 💤</div>
+            <div class="char-hat">💻</div>
+            <div class="char-body">
+                <div class="head">
+                    <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+                </div>
+                <div class="legs"><div class="leg"></div><div class="leg"></div></div>
+            </div>
+            <div class="char-glow"></div>
+            <div class="char-name">💻 WEB DEV</div>
+            <div class="char-status">Lv.8 · Idle</div>
+        </div>
+
+        <!-- Character: Lead (You) -->
+        <div class="character char-lead" id="char-lead">
+            <div class="speech-bubble">Directing operations 👑</div>
+            <div class="crown">👑</div>
+            <div class="char-body">
+                <div class="head">
+                    <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+                </div>
+                <div class="legs"><div class="leg"></div><div class="leg"></div></div>
+            </div>
+            <div class="char-glow"></div>
+            <div class="char-name">👑 OWNER</div>
+            <div class="char-status">Lv.99 · Directing</div>
+            <div class="action-indicator"><div class="action-dot"></div><div class="action-dot"></div><div class="action-dot"></div></div>
+        </div>
+
+        <!-- Character: Breesy (the dog) -->
+        <div class="character char-breesy active-task" id="char-breesy">
+            <div class="speech-bubble">Woof! Stay Salty! 🐕</div>
+            <div class="ears"><div class="ear"></div><div class="ear"></div></div>
+            <div class="char-body">
+                <div class="head">
+                    <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+                </div>
+                <div class="tail"></div>
+                <div class="legs"><div class="leg"></div><div class="leg"></div></div>
+            </div>
+            <div class="char-glow"></div>
+            <div class="char-name">🐕 BREESY</div>
+            <div class="char-status">Tan Hound · Happy</div>
+            <div class="action-indicator"><div class="action-dot" style="background:#22c55e;"></div><div class="action-dot" style="background:#22c55e;"></div><div class="action-dot" style="background:#22c55e;"></div></div>
+        </div>
+    </div>
+
+    <!-- Status Panel -->
+    <div class="status-panel">
+        <h3>🏝️ ISLAND STATUS</h3>
+        <div class="status-row">
+            <span class="dot online"></span>
+            <span class="name">Designer</span>
+            <span class="state">🎨 Creating</span>
+        </div>
+        <div class="status-row">
+            <span class="dot idle"></span>
+            <span class="name">Web Dev</span>
+            <span class="state">💤 Idle</span>
+        </div>
+        <div class="status-row">
+            <span class="dot online"></span>
+            <span class="name">Owner</span>
+            <span class="state">👑 Directing</span>
+        </div>
+        <div class="status-row">
+            <span class="dot online"></span>
+            <span class="name">Breesy 🐕</span>
+            <span class="state">🏖️ Beach Life</span>
+        </div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:8px;color:#64748b;font-family:'Press Start 2P',monospace;">
+                12/12 TASKS ✓
+            </div>
+            <div style="font-size:7px;color:#475569;margin-top:4px;">
+                104 designs · 30+ products
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticker -->
+    <div class="ticker">
+        <div class="ticker-text">
+            🏝️ BREESY'S ISLAND · STORE LIVE AT breesysisland.com · 30+ PRODUCTS · 104 DESIGNS · 12 TASKS COMPLETE · STAY SALTY! 🐕
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simulate agent activity with speech bubble updates
+    const statuses = {
+        designer: {
+            name: 'char-designer',
+            tasks: [
+                'Creating new designs... 🎨',
+                'Rendering mockups... 📸',
+                'Perfecting the palette... 🎯',
+                'Tommy Bahama vibes! 🌴',
+                'Breesy edition incoming! 🐕',
+                'Pixel perfect details! ✨'
+            ]
+        },
+        webdev: {
+            name: 'char-webdev',
+            tasks: [
+                'Standing by... 💤',
+                'Deploying updates... 🚀',
+                'Optimizing performance... ⚡',
+                'Writing clean code... 💻',
+                'Git push complete! ✅'
+            ]
+        },
+        breesy: {
+            name: 'char-breesy',
+            tasks: [
+                'Woof! Stay Salty! 🐕',
+                'Chasing waves! 🌊',
+                'Guarding the island! 🏝️',
+                'Napping in the sun... ☀️',
+                'Inspecting new designs! 👀',
+                'Beach patrol! 🐾'
+            ]
+        },
+        lead: {
+            name: 'char-lead',
+            tasks: [
+                'Directing operations 👑',
+                'Reviewing designs... 📋',
+                'Strategic planning! 🧠',
+                'Approving products! ✅',
+                'Growing the brand! 📈'
+            ]
+        }
+    };
+
+    function updateSpeech(charKey) {
+        const char = statuses[charKey];
+        const el = document.getElementById(char.name);
+        if (!el) return;
+        const bubble = el.querySelector('.speech-bubble');
+        const tasks = char.tasks;
+        const current = tasks[Math.floor(Math.random() * tasks.length)];
+        bubble.textContent = current;
+    }
+
+    // Cycle through different speeches
+    setInterval(() => {
+        const keys = Object.keys(statuses);
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        updateSpeech(randomKey);
+    }, 4000);
+
+    // Animate cloud movement restart
+    document.querySelectorAll('.cloud').forEach(cloud => {
+        const dur = 25 + Math.random() * 15;
+        cloud.style.animationDuration = dur + 's';
+    });
+</script>
+</body>
+</html>
