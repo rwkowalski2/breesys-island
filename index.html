@@ -13,21 +13,35 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <img src="assets/breesys_island_logo_v3.png" alt="Breesy's Island">
+                <a href="#hero">
+                    <img src="assets/breesys_island_logo_v3.png" alt="Breesy's Island">
+                </a>
             </div>
             <ul class="nav-links">
                 <li><a href="#hero">Home</a></li>
                 <li><a href="#about">Our Story</a></li>
                 <li><a href="#shop">Shop</a></li>
                 <li><a href="#performance">Performance</a></li>
-                <li><a href="#drinkware">Drinkware</a></li>
                 <li><a href="#swim">Swim</a></li>
                 <li><a href="#headwear">Headwear</a></li>
+                <li><a href="#drinkware">Drinkware</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
-            <div class="nav-cta">
-                <a href="#shop" class="btn-primary">Shop Now</a>
+            <div class="nav-actions">
+                <button class="cart-btn" onclick="openCart()" aria-label="Open cart">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="cart-count" style="display:none;">0</span>
+                </button>
             </div>
+            <button class="hamburger" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
 
@@ -64,29 +78,40 @@
         </div>
     </section>
 
-    <!-- Shop Section -->
+    <!-- Shop Section - Premium Tees & Shirts -->
     <section id="shop" class="shop">
         <div class="container">
-            <h2>Featured Collection</h2>
+            <h2>Premium Collection</h2>
             <p class="section-sub">Premium island lifestyle apparel, crafted for the saltwater soul.</p>
+            
+            <div class="category-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="tees">Premium Tees</button>
+                <button class="filter-btn" data-filter="resort">Resort Shirts</button>
+                <button class="filter-btn" data-filter="headwear">Headwear</button>
+                <button class="filter-btn" data-filter="accessories">Accessories</button>
+            </div>
             
             <div class="products-grid">
                 <!-- Product 1: Premium Tee -->
-                <div class="product-card">
+                <div class="product-card" data-category="tees">
                     <div class="product-image">
                         <img src="assets/tee_frontback_island_escape.png" alt="Breesy's Island Premium Tee">
                         <div class="product-badge">Best Seller</div>
                     </div>
                     <div class="product-info">
                         <h3>Island Escape Premium Tee</h3>
-                        <p class="product-desc">Featuring our small signature crest on the front and the large detailed 'Island Escape' scene on the back. Premium white cotton.</p>
+                        <p class="product-desc">Small signature crest on the front, large 'Island Escape' scene on the back. Premium white cotton.</p>
                         <div class="product-price">$65</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Product 2: Resort Shirt -->
-                <div class="product-card product-featured">
+                <div class="product-card product-featured" data-category="resort">
                     <div class="product-image">
                         <img src="assets/resort_shirt_mockup_v3.png" alt="Breesy's Island Resort Shirt">
                         <div class="product-badge product-badge-gold">Signature Piece</div>
@@ -95,38 +120,48 @@
                         <h3>Island Palm Resort Shirt</h3>
                         <p class="product-desc">All-over tropical print. Batik-style palm, hibiscus & hook pattern. Premium linen-cotton blend.</p>
                         <div class="product-price">$120</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Product 3: Hat -->
-                <div class="product-card">
+                <div class="product-card" data-category="headwear">
                     <div class="product-image">
                         <img src="assets/hat_mockup_v5.png" alt="Breesy's Island Hat">
+                        <div class="product-badge">Popular</div>
                     </div>
                     <div class="product-info">
                         <h3>Sunset Crest Cap</h3>
                         <p class="product-desc">Premium unstructured cap with embroidered Breesy sunset crest. Adjustable brass buckle.</p>
                         <div class="product-price">$42</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Product 4: Back Design Tee -->
-                <div class="product-card">
+                <div class="product-card" data-category="tees">
                     <div class="product-image">
                         <img src="assets/tshirt_back_design_v3.png" alt="Breesy's Island Back Design">
                     </div>
                     <div class="product-info">
                         <h3>Rod & Palm Tee</h3>
-                        <p class="product-desc">Crossed rod, palm frond & cocktail — the perfect island back graphic.</p>
+                        <p class="product-desc">Crossed rod, palm frond & cocktail — the perfect island back graphic. Premium cotton.</p>
                         <div class="product-price">$55</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Product 5: Mahi-Mahi -->
-                <div class="product-card">
+                <div class="product-card" data-category="tees">
                     <div class="product-image">
                         <img src="assets/tee_frontback_mahi_mahi.png" alt="Breesy's Island Mahi-Mahi">
                     </div>
@@ -134,25 +169,31 @@
                         <h3>Mahi-Mahi Premium Tee</h3>
                         <p class="product-desc">Premium cotton tee with the small Breesy's Island crest on the front and a stunning hand-painted Mahi-Mahi on the back.</p>
                         <div class="product-price">$65</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Product 6: Logo Tee -->
-                <div class="product-card">
+                <div class="product-card" data-category="tees">
                     <div class="product-image">
                         <img src="assets/breesys_island_logo_v3.png" alt="Breesy's Island Logo Tee">
                     </div>
                     <div class="product-info">
                         <h3>Signature Crest Tee</h3>
-                        <p class="product-desc">Embroidered-style Breesy's Island crest. Understated premium look.</p>
+                        <p class="product-desc">Embroidered-style Breesy's Island crest. Understated premium look on soft cotton.</p>
                         <div class="product-price">$49</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Product 7: Tiki Bar Tee -->
-                <div class="product-card">
+                <div class="product-card" data-category="tees">
                     <div class="product-image">
                         <img src="assets/tee_frontback_tiki_bar.png" alt="Breesy's Island Tiki Bar Tee">
                         <div class="product-badge">New</div>
@@ -161,12 +202,15 @@
                         <h3>Tiki Bar Islander Tee</h3>
                         <p class="product-desc">Small vintage sign logo on the front and Breesy relaxing at the Tiki Bar on the back. Island state of mind.</p>
                         <div class="product-price">$65</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Product 8: Snook Hunter Tee -->
-                <div class="product-card">
+                <div class="product-card" data-category="tees">
                     <div class="product-image">
                         <img src="assets/snook_hunter_tee_updated_mockup.png" alt="Breesy's Island Snook Tee">
                     </div>
@@ -174,79 +218,64 @@
                         <h3>Snook Hunter Tee</h3>
                         <p class="product-desc">The Breesy's Island crest on the front and a hand-painted Snook leaping through hibiscus on the back.</p>
                         <div class="product-price">$55</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Product 9: Nautical Shirt -->
-                <div class="product-card product-featured">
+                <div class="product-card product-featured" data-category="resort">
                     <div class="product-image">
                         <img src="assets/nautical_map_pattern_v4.png" alt="Breesy's Island Nautical Shirt">
                         <div class="product-badge product-badge-gold">New</div>
                     </div>
                     <div class="product-info">
                         <h3>Nautical Chart Resort Shirt</h3>
-                        <p class="product-desc">Vintage map fabric pattern. Charts, boats, fish & paw prints. Premium linen.</p>
+                        <p class="product-desc">Vintage map fabric pattern. Charts, boats, fish & paw prints. Premium linen blend.</p>
                         <div class="product-price">$120</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Product 10: Lighthouse Hat -->
-                <div class="product-card">
+                <div class="product-card" data-category="headwear">
                     <div class="product-image">
                         <img src="assets/lighthouse_hat_mockup.png" alt="Breesy's Island Lighthouse Hat">
                     </div>
                     <div class="product-info">
                         <h3>Lighthouse Sunset Cap</h3>
-                        <p class="product-desc">Embroidered coastal lighthouse at sunset. Premium curved brim.</p>
+                        <p class="product-desc">Embroidered coastal lighthouse at sunset. Premium curved brim with mesh back.</p>
                         <div class="product-price">$42</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Product 11: Coastal Vista -->
-                <div class="product-card">
+                <div class="product-card" data-category="tees">
                     <div class="product-image">
                         <img src="assets/tee_frontback_coastal_vista.png" alt="Breesy's Island Coastal Vista">
                     </div>
                     <div class="product-info">
                         <h3>Coastal Vista Premium Tee</h3>
-                        <p class="product-desc">The small Breesy's Island signature crest on the front and a wide, hand-painted escapist landscape on the back. Premium black cotton.</p>
+                        <p class="product-desc">Small signature crest on the front and a wide, hand-painted escapist landscape on the back. Premium black cotton.</p>
                         <div class="product-price">$65</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Product 12: Beach Towel -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="assets/beach_towel_mockup_v5.png" alt="Breesy's Island Beach Towel">
-                        <div class="product-badge">New</div>
-                    </div>
-                    <div class="product-info">
-                        <h3>Island Crest Beach Towel</h3>
-                        <p class="product-desc">Large tropical print with Breesy's Island crest. Premium cotton terry.</p>
-                        <div class="product-price">$55</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                    </div>
-                </div>
-
-                <!-- Product 13: Drinkware -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="assets/mug_mockup_v5.png" alt="Breesy's Island Mug">
-                    </div>
-                    <div class="product-info">
-                        <h3>Island Travel Mug</h3>
-                        <p class="product-desc">Stainless steel insulated tumbler with wrap-around palm & wave pattern.</p>
-                        <div class="product-price">$32</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                    </div>
-                </div>
-
-                <!-- Product 14: Kids Tee -->
-                <div class="product-card">
+                <!-- Product 12: Kids Tee -->
+                <div class="product-card" data-category="tees">
                     <div class="product-image">
                         <img src="assets/tee_frontback_kids.png" alt="Breesy's Island Kids Tee">
                         <div class="product-badge">New</div>
@@ -255,28 +284,101 @@
                         <h3>Breesy's Island Kids Tee</h3>
                         <p class="product-desc">Small crest on the front and Breesy in a captain's hat on the back. Fun tropical style for little anglers.</p>
                         <div class="product-price">$45</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Product 15: Sailfish Jump Tee -->
-                <div class="product-card">
+                <!-- Product 13: Sailfish Jump Tee -->
+                <div class="product-card" data-category="tees">
                     <div class="product-image">
                         <img src="assets/tee_frontback_sailfish_jump.png" alt="Breesy's Island Sailfish Tee">
                         <div class="product-badge">New</div>
                     </div>
                     <div class="product-info">
                         <h3>Sailfish Jump Tee</h3>
-                        <p class="product-desc">Featuring our small signature crest on the front and a stunning leaping Sailfish on the back. Premium white cotton.</p>
+                        <p class="product-desc">Small signature crest on the front and a stunning leaping Sailfish on the back. Premium white cotton.</p>
                         <div class="product-price">$65</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 14: Beach Towel -->
+                <div class="product-card" data-category="accessories">
+                    <div class="product-image">
+                        <img src="assets/beach_towel_mockup_v5.png" alt="Breesy's Island Beach Towel">
+                        <div class="product-badge">New</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Island Crest Beach Towel</h3>
+                        <p class="product-desc">Large tropical print with Breesy's Island crest. Premium cotton terry, perfect for beach days.</p>
+                        <div class="product-price">$55</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 15: Tote Bag -->
+                <div class="product-card" data-category="accessories">
+                    <div class="product-image">
+                        <img src="assets/breesys_island_tote_bag_v5.png" alt="Breesy's Island Tote Bag">
+                        <div class="product-badge">New</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Island Tote Bag</h3>
+                        <p class="product-desc">Heavy-duty canvas tote with Breesy's Island crest. Perfect for beach days and market runs.</p>
+                        <div class="product-price">$38</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 16: Women's Tank -->
+                <div class="product-card" data-category="tees">
+                    <div class="product-image">
+                        <img src="assets/breesys_island_womens_tank_v5.png" alt="Breesy's Island Women's Tank">
+                        <div class="product-badge">Women's</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Island Breeze Tank</h3>
+                        <p class="product-desc">Women's relaxed fit tank with Breesy's Island crest. Soft cotton jersey, perfect for warm days.</p>
+                        <div class="product-price">$42</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 17: Travel Mug -->
+                <div class="product-card" data-category="accessories">
+                    <div class="product-image">
+                        <img src="assets/mug_mockup_v5.png" alt="Breesy's Island Mug">
+                    </div>
+                    <div class="product-info">
+                        <h3>Island Travel Mug</h3>
+                        <p class="product-desc">Stainless steel insulated tumbler with wrap-around palm & wave pattern. 20oz.</p>
+                        <div class="product-price">$32</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Performance Section -->
+    <!-- Performance Series -->
     <section id="performance" class="shop" style="background-color: #f9fbfd;">
         <div class="container">
             <h2>Performance Series</h2>
@@ -284,7 +386,7 @@
             
             <div class="products-grid">
                 <!-- Perf 1: Tarpon -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_tarpon.png" alt="Tarpon Silver King LS">
                         <div class="product-badge">Pro Staff</div>
@@ -293,12 +395,15 @@
                         <h3>Tarpon Silver King LS</h3>
                         <p class="product-desc">Photorealistic Silver King tarpon on the back, signature crest on front. Light grey technical fabric.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 2: Sailfish -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_sailfish.png" alt="Sailfish LS">
                     </div>
@@ -306,12 +411,15 @@
                         <h3>Sailfish LS</h3>
                         <p class="product-desc">Leaping Sailfish on the back, signature crest on front. Cool grey technical fabric.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 3: Tropical Mangrove -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_mangrove.png" alt="Tropical Mangrove LS">
                     </div>
@@ -319,12 +427,15 @@
                         <h3>Tropical Mangrove LS</h3>
                         <p class="product-desc">Detailed mangrove fishing scene on the back, signature crest on front. Seafoam green technical fabric.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 4: Sunset Pier -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_sunset_pier.png" alt="Sunset Pier LS">
                         <div class="product-badge">New Arrival</div>
@@ -333,12 +444,15 @@
                         <h3>Sunset Pier LS</h3>
                         <p class="product-desc">Stunning sunset pier scene on the back, vintage sign logo on front. White technical fabric.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 5: Mahi -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_mahi.png" alt="Mahi-Mahi LS">
                     </div>
@@ -346,40 +460,49 @@
                         <h3>Mahi-Mahi LS</h3>
                         <p class="product-desc">Hand-painted Mahi-Mahi on the back, signature crest on front. Azure blue technical fabric.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 6: Breesy Snook -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_snook.png" alt="Breesy Snook LS">
                         <div class="product-badge">Breesy Edition</div>
                     </div>
                     <div class="product-info">
                         <h3>Breesy's Snook LS</h3>
-                        <p class="product-desc">Breesy the tan hound with a lineside Snook on the back. Signature crest on front. Sage green technical fabric.</p>
+                        <p class="product-desc">Breesy the tan hound with a lineside Snook on the back. Signature crest on front. Sage green.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 7: Breesy Sunset Sailfish -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_breesy_sailfish.png" alt="Breesy Sunset Sailfish LS">
                         <div class="product-badge">Breesy Edition</div>
                     </div>
                     <div class="product-info">
                         <h3>Breesy's Sunset Sailfish LS</h3>
-                        <p class="product-desc">Breesy on the boat watching a Sailfish jump at sunset. Signature crest on front. Coastal grey technical fabric.</p>
+                        <p class="product-desc">Breesy on the boat watching a Sailfish jump at sunset. Signature crest on front. Coastal grey.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 8: Breesy Beach Run -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_breesy_beach.png" alt="Breesy Beach Run LS">
                         <div class="product-badge">Breesy Edition</div>
@@ -388,63 +511,416 @@
                         <h3>Breesy's Beach Run LS</h3>
                         <p class="product-desc">Breesy running along a beach shoreline with waves. Signature crest on front. White technical fabric.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 9: Breesy Tiki Time -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_breesy_tiki.png" alt="Breesy Tiki Time LS">
                         <div class="product-badge">Breesy Edition</div>
                     </div>
                     <div class="product-info">
                         <h3>Breesy's Tiki Time LS</h3>
-                        <p class="product-desc">Breesy relaxing at the Tiki Bar with a tropical drink. Signature crest on front. Heather grey technical fabric.</p>
+                        <p class="product-desc">Breesy relaxing at the Tiki Bar with a tropical drink. Signature crest. Heather grey.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 10: Breesy Pier Walk -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_breesy_pier.png" alt="Breesy Pier Walk LS">
                         <div class="product-badge">Breesy Edition</div>
                     </div>
                     <div class="product-info">
                         <h3>Breesy's Pier Walk LS</h3>
-                        <p class="product-desc">Breesy walking down a sunset pier with a fishing rod. Signature crest on front. Light blue technical fabric.</p>
+                        <p class="product-desc">Breesy walking down a sunset pier with a fishing rod. Signature crest on front. Light blue.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 11: Breesy Flats Fishing -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_breesy_flats.png" alt="Breesy Flats Fishing LS">
                         <div class="product-badge">Breesy Edition</div>
                     </div>
                     <div class="product-info">
                         <h3>Breesy's Flats Fishing LS</h3>
-                        <p class="product-desc">Breesy poling a flats skiff in crystal clear water. Signature crest on front. Light blue technical fabric.</p>
+                        <p class="product-desc">Breesy poling a flats skiff in crystal clear water. Signature crest on front. Light blue.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Perf 12: Breesy's Redfish LS -->
-                <div class="product-card">
+                <div class="product-card" data-category="performance">
                     <div class="product-image">
                         <img src="assets/ls_perf_redfish.png" alt="Breesy Redfish LS">
                         <div class="product-badge">Breesy Edition</div>
                     </div>
                     <div class="product-info">
                         <h3>Breesy's Redfish LS</h3>
-                        <p class="product-desc">Breesy on the flats with a tailing Redfish on the back. Signature crest on front. Sandbar tan technical fabric.</p>
+                        <p class="product-desc">Breesy on the flats with a tailing Redfish on the back. Signature crest on front. Sandbar tan.</p>
                         <div class="product-price">$75</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Swim Collection -->
+    <section id="swim" class="shop" style="background-color: #f0f7f9;">
+        <div class="container">
+            <h2>Breesy's Swim Collection</h2>
+            <p class="section-sub">Tropical patterns and premium comfort for men and women. Dive into the island lifestyle.</p>
+
+            <div class="products-grid">
+                <!-- Swim 1: Men's Tropical -->
+                <div class="product-card" data-category="swim">
+                    <div class="product-image">
+                        <img src="assets/swim_trunks_men_tropical.png" alt="Men's Tropical Boardshorts">
+                        <div class="product-badge">Best Seller</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Tropical Boardshorts</h3>
+                        <p class="product-desc">All-over tropical print with palm leaves, hibiscus, and hooks. 18" outseam.</p>
+                        <div class="product-price">$65</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Swim 2: Men's Nautical -->
+                <div class="product-card" data-category="swim">
+                    <div class="product-image">
+                        <img src="assets/swim_trunks_men_nautical.png" alt="Men's Nautical Boardshorts">
+                        <div class="product-badge">New</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Nautical Boardshorts</h3>
+                        <p class="product-desc">Vintage nautical map print with anchors, compass roses, and Breesy's paw prints.</p>
+                        <div class="product-price">$65</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Swim 3: Men's Sunset -->
+                <div class="product-card" data-category="swim">
+                    <div class="product-image">
+                        <img src="assets/swim_trunks_men_sunset.png" alt="Men's Sunset Boardshorts">
+                    </div>
+                    <div class="product-info">
+                        <h3>Sunset Boardshorts</h3>
+                        <p class="product-desc">Sunset gradient with Breesy silhouette on the beach. Vibrant warm tones.</p>
+                        <div class="product-price">$65</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Swim 4: Men's Performance -->
+                <div class="product-card" data-category="swim">
+                    <div class="product-image">
+                        <img src="assets/swim_trunks_men_performance.png" alt="Men's Performance Boardshorts">
+                        <div class="product-badge">Pro Staff</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Performance Boardshorts</h3>
+                        <p class="product-desc">Solid navy with Breesy's Island embroidered crest. Sporty fishing style.</p>
+                        <div class="product-price">$70</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Women 1: Tropical Bikini -->
+                <div class="product-card" data-category="swim">
+                    <div class="product-image">
+                        <img src="assets/swim_bikini_sexy_tropical.png" alt="Tropical Bikini">
+                        <div class="product-badge">New</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Tropical Triangle Bikini</h3>
+                        <p class="product-desc">Premium tropical palm print triangle top with gold O-rings. Matching tie-side bottom.</p>
+                        <div class="product-price">$55</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Women 2: Sunset Bikini -->
+                <div class="product-card" data-category="swim">
+                    <div class="product-image">
+                        <img src="assets/swim_bikini_sexy_sunset.png" alt="Sunset Bikini">
+                    </div>
+                    <div class="product-info">
+                        <h3>Sunset Cutout Bikini</h3>
+                        <p class="product-desc">Brazilian cutout design with strappy back. Teal and black with Breesy's crest.</p>
+                        <div class="product-price">$58</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Women 3: Nautical Bikini -->
+                <div class="product-card" data-category="swim">
+                    <div class="product-image">
+                        <img src="assets/swim_bikini_sexy_nautical.png" alt="Nautical Bikini">
+                        <div class="product-badge">Premium</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Nautical High-Waist Bikini</h3>
+                        <p class="product-desc">Retro high-waist two-piece with vintage nautical map and paw print pattern.</p>
+                        <div class="product-price">$60</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Women 4: Bandeau Set -->
+                <div class="product-card" data-category="swim">
+                    <div class="product-image">
+                        <img src="assets/swim_bikini_sexy_mesh.png" alt="Bandeau Bikini">
+                    </div>
+                    <div class="product-info">
+                        <h3>Bandeau Bikini Set</h3>
+                        <p class="product-desc">Navy bandeau top + cheeky bottom with gold Breesy's Island crest hardware.</p>
+                        <div class="product-price">$62</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Women 5: One-Piece -->
+                <div class="product-card" data-category="swim">
+                    <div class="product-image">
+                        <img src="assets/swim_one_piece_crest.png" alt="Breesy's Island One-Piece">
+                        <div class="product-badge">Premium</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Island Crest One-Piece</h3>
+                        <p class="product-desc">Classic one-piece with Breesy's Island gold crest. Navy with adjustable straps.</p>
+                        <div class="product-price">$68</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Headwear Section -->
+    <section id="headwear" class="shop" style="background-color: #f9fbfd;">
+        <div class="container">
+            <h2>Breesy's Headwear</h2>
+            <p class="section-sub">From classic truckers to high-performance fishing hats. Designed for the sun and the salt.</p>
+            
+            <div class="products-grid">
+                <!-- Hat 1 -->
+                <div class="product-card" data-category="headwear">
+                    <div class="product-image">
+                        <img src="assets/hat_breesy_captain_cap.png" alt="Breesy Captain Cap">
+                        <div class="product-badge">Top Seller</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Captain Breesy Cap</h3>
+                        <p class="product-desc">Premium curved brim navy cap with embroidered Captain Breesy.</p>
+                        <div class="product-price">$32</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hat 2 -->
+                <div class="product-card" data-category="headwear">
+                    <div class="product-image">
+                        <img src="assets/hat_breesy_beach_trucker.png" alt="Breesy Beach Trucker Hat">
+                        <div class="product-badge">New Arrival</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Breesy's Beach Trucker</h3>
+                        <p class="product-desc">Navy/foam trucker with Breesy silhouette and palm tree patch.</p>
+                        <div class="product-price">$30</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hat 3 -->
+                <div class="product-card" data-category="headwear">
+                    <div class="product-image">
+                        <img src="assets/hat_breesy_fishing_dad_hat.png" alt="Breesy Fishing Dad Hat">
+                    </div>
+                    <div class="product-info">
+                        <h3>Breesy Fishing Dad Hat</h3>
+                        <p class="product-desc">Unstructured khaki olive cotton hat with fishing Breesy embroidery.</p>
+                        <div class="product-price">$28</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hat 4 -->
+                <div class="product-card" data-category="headwear">
+                    <div class="product-image">
+                        <img src="assets/hat_breesy_tiki_hat.png" alt="Breesy Tiki Hat">
+                        <div class="product-badge">Resort Style</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Breesy's Tiki Straw Hat</h3>
+                        <p class="product-desc">Straw floppy beach hat with a custom woven Breesy patch.</p>
+                        <div class="product-price">$45</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hat 5 -->
+                <div class="product-card" data-category="headwear">
+                    <div class="product-image">
+                        <img src="assets/hat_breesy_island_bucket_hat.png" alt="Breesy's Island Bucket Hat">
+                        <div class="product-badge">Performance</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Breesy's Island Bucket Hat</h3>
+                        <p class="product-desc">All-over Breesy's Island pattern on moisture-wicking performance fabric.</p>
+                        <div class="product-price">$35</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hat 6: Captain Trucker -->
+                <div class="product-card" data-category="headwear">
+                    <div class="product-image">
+                        <img src="assets/hat_breesy_captain_trucker.png" alt="Breesy Captain Trucker">
+                        <div class="product-badge">New</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Captain Breesy Trucker</h3>
+                        <p class="product-desc">Foam front trucker cap with Captain Breesy embroidery. Mesh back.</p>
+                        <div class="product-price">$32</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hat 7: Classic Patch Navy -->
+                <div class="product-card" data-category="headwear">
+                    <div class="product-image">
+                        <img src="assets/hat_breesy_classic_patch_navy.png" alt="Breesy Classic Patch Hat">
+                    </div>
+                    <div class="product-info">
+                        <h3>Classic Patch Navy Cap</h3>
+                        <p class="product-desc">Navy cap with woven Breesy's Island patch. Curved brim, classic fit.</p>
+                        <div class="product-price">$30</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hat 8: Pro Staff Performance -->
+                <div class="product-card" data-category="headwear">
+                    <div class="product-image">
+                        <img src="assets/hat_breesy_pro_staff_performance.png" alt="Breesy Pro Staff Hat">
+                        <div class="product-badge">Pro Staff</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Pro Staff Performance Hat</h3>
+                        <p class="product-desc">Moisture-wicking performance fabric. Structured fit with Breesy's Island logo.</p>
+                        <div class="product-price">$35</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hat 9: Sunset Leather Patch -->
+                <div class="product-card" data-category="headwear">
+                    <div class="product-image">
+                        <img src="assets/hat_breesy_sunset_leather_patch.png" alt="Breesy Sunset Leather Patch Hat">
+                        <div class="product-badge">Premium</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Sunset Leather Patch Cap</h3>
+                        <p class="product-desc">Premium cap with genuine leather Breesy sunset patch. Self-fabric strap.</p>
+                        <div class="product-price">$38</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hat 10: Beach Visor -->
+                <div class="product-card" data-category="headwear">
+                    <div class="product-image">
+                        <img src="assets/hat_breesy_beach_visor.png" alt="Breesy Beach Visor">
+                        <div class="product-badge">New</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Breesy's Beach Visor</h3>
+                        <p class="product-desc">Sport visor with Breesy's Island embroidery. Perfect for beach days and tennis.</p>
+                        <div class="product-price">$28</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -459,7 +935,7 @@
             
             <div class="products-grid">
                 <!-- Tumbler 1 -->
-                <div class="product-card">
+                <div class="product-card" data-category="accessories">
                     <div class="product-image">
                         <img src="assets/tumbler_breesy_captain.png" alt="Breesy Captain Tumbler">
                         <div class="product-badge">Breesy Edition</div>
@@ -468,12 +944,15 @@
                         <h3>Captain Breesy Tumbler</h3>
                         <p class="product-desc">Captain Breesy at the helm. Full wrap-around ocean scene. 20oz Stainless Steel.</p>
                         <div class="product-price">$45</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Tumbler 2 -->
-                <div class="product-card">
+                <div class="product-card" data-category="accessories">
                     <div class="product-image">
                         <img src="assets/tumbler_breesy_tiki.png" alt="Breesy Tiki Tumbler">
                         <div class="product-badge">Breesy Edition</div>
@@ -482,12 +961,15 @@
                         <h3>Breesy's Tiki Bar Tumbler</h3>
                         <p class="product-desc">Breesy relaxing at the Tiki Bar. Sunset wrap-around design. 20oz Stainless Steel.</p>
                         <div class="product-price">$45</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Tumbler 3 -->
-                <div class="product-card">
+                <div class="product-card" data-category="accessories">
                     <div class="product-image">
                         <img src="assets/tumbler_breesy_fishing.png" alt="Breesy Fishing Tumbler">
                         <div class="product-badge">Breesy Edition</div>
@@ -496,12 +978,15 @@
                         <h3>Breesy's Fishing Tumbler</h3>
                         <p class="product-desc">Breesy with a rod on the boat. Tropical blue water wrap-around artwork.</p>
                         <div class="product-price">$45</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Tumbler 4 -->
-                <div class="product-card">
+                <div class="product-card" data-category="accessories">
                     <div class="product-image">
                         <img src="assets/tumbler_breesy_sunset.png" alt="Breesy Sunset Tumbler">
                         <div class="product-badge">Breesy Edition</div>
@@ -510,12 +995,15 @@
                         <h3>Sunset Breesy Tumbler</h3>
                         <p class="product-desc">Breesy silhouette watching the sunset. Stunning orange and purple wrap.</p>
                         <div class="product-price">$45</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Tumbler 5 -->
-                <div class="product-card">
+                <div class="product-card" data-category="accessories">
                     <div class="product-image">
                         <img src="assets/tumbler_breesy_beach.png" alt="Breesy Beach Tumbler">
                         <div class="product-badge">Breesy Edition</div>
@@ -524,204 +1012,10 @@
                         <h3>Beach Day Breesy Tumbler</h3>
                         <p class="product-desc">Breesy running on the shoreline. Clean turquoise beach wrap design.</p>
                         <div class="product-price">$45</div>
-                        <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Swim Section -->
-        <section id="swim" class="shop" style="background-color: #f0f7f9;">
-            <div class="container">
-                <h2 class="section-title">Breesy's Swim Collection</h2>
-                <p class="section-sub">Tropical patterns and premium comfort for men and women. Dive into the island lifestyle.</p>
-
-                <div class="products-grid">
-                    <!-- Swim 1: Men's Tropical -->
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="assets/swim_trunks_men_tropical.png" alt="Men's Tropical Boardshorts">
-                            <div class="product-badge">Best Seller</div>
+                        <div class="product-actions">
+                            <button class="btn-primary btn-small btn-add-cart">Add to Cart</button>
+                            <button class="btn-primary btn-small btn-buy-now">Buy Now</button>
                         </div>
-                        <div class="product-info">
-                            <h3>Tropical Boardshorts</h3>
-                            <p class="product-desc">All-over tropical print with palm leaves, hibiscus, and hooks. Tommy Bahama style. 18" outseam.</p>
-                            <div class="product-price">$65</div>
-                            <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                        </div>
-                    </div>
-
-                    <!-- Swim 2: Men's Nautical -->
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="assets/swim_trunks_men_nautical.png" alt="Men's Nautical Boardshorts">
-                            <div class="product-badge">New</div>
-                        </div>
-                        <div class="product-info">
-                            <h3>Nautical Boardshorts</h3>
-                            <p class="product-desc">Vintage nautical map print with anchors, compass roses, and Breesy's paw prints.</p>
-                            <div class="product-price">$65</div>
-                            <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                        </div>
-                    </div>
-
-                    <!-- Swim 3: Men's Sunset -->
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="assets/swim_trunks_men_sunset.png" alt="Men's Sunset Boardshorts">
-                        </div>
-                        <div class="product-info">
-                            <h3>Sunset Boardshorts</h3>
-                            <p class="product-desc">Sunset gradient with Breesy silhouette on the beach. Vibrant warm tones.</p>
-                            <div class="product-price">$65</div>
-                            <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                        </div>
-                    </div>
-
-                    <!-- Swim 4: Men's Performance -->
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="assets/swim_trunks_men_performance.png" alt="Men's Performance Boardshorts">
-                            <div class="product-badge">Pro Staff</div>
-                        </div>
-                        <div class="product-info">
-                            <h3>Performance Boardshorts</h3>
-                            <p class="product-desc">Solid navy with Breesy's Island embroidered crest. Sporty fishing style.</p>
-                            <div class="product-price">$70</div>
-                            <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                        </div>
-                    </div>
-
-                    <!-- Women 1: Tropical Bikini -->
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="assets/swim_bikini_sexy_tropical.png" alt="Tropical Bikini">
-                            <div class="product-badge">New</div>
-                        </div>
-                        <div class="product-info">
-                            <h3>Tropical Triangle Bikini</h3>
-                            <p class="product-desc">Premium tropical palm print triangle top with gold O-rings. Matching tie-side bottom.</p>
-                            <div class="product-price">$55</div>
-                            <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                        </div>
-                    </div>
-
-                    <!-- Women 2: Sunset Bikini -->
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="assets/swim_bikini_sexy_sunset.png" alt="Sunset Bikini">
-                        </div>
-                        <div class="product-info">
-                            <h3>Sunset Cutout Bikini</h3>
-                            <p class="product-desc">Brazilian cutout design with strappy back. Teal and black with Breesy's crest.</p>
-                            <div class="product-price">$58</div>
-                            <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                        </div>
-                    </div>
-
-                    <!-- Women 3: Nautical Bikini -->
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="assets/swim_bikini_sexy_nautical.png" alt="Nautical Bikini">
-                            <div class="product-badge">Premium</div>
-                        </div>
-                        <div class="product-info">
-                            <h3>Nautical High-Waist Bikini</h3>
-                            <p class="product-desc">Retro high-waist two-piece with vintage nautical map and paw print pattern.</p>
-                            <div class="product-price">$60</div>
-                            <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                        </div>
-                    </div>
-
-                    <!-- Women 4: Bandeau Set -->
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="assets/swim_bikini_sexy_mesh.png" alt="Bandeau Bikini">
-                        </div>
-                        <div class="product-info">
-                            <h3>Bandeau Bikini Set</h3>
-                            <p class="product-desc">Navy bandeau top + cheeky bottom with gold Breesy's Island crest hardware.</p>
-                            <div class="product-price">$62</div>
-                            <a href="#" class="btn-primary btn-small">Pre-Order Now</a>
-                        </div>
-                    </div>
-            </div>
-        </section>
-
-    <!-- Headwear Section -->
-    <section id="headwear" class="performance alternate-bg">
-        <div class="container">
-            <h2 class="section-title">Breesy's Headwear</h2>
-            <p class="section-sub">From classic truckers to high-performance fishing hats. Designed for the sun and the salt.</p>
-            
-            <div class="products-grid">
-                <!-- Hat 1 -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="assets/hat_breesy_captain_cap.png" alt="Breesy Captain Cap">
-                        <div class="product-badge">Top Seller</div>
-                    </div>
-                    <div class="product-info">
-                        <h3>Captain Breesy Cap</h3>
-                        <p class="product-desc">Premium curved brim navy cap with embroidered Captain Breesy.</p>
-                        <div class="product-price">$32</div>
-                        <a href="#" class="btn-primary btn-small">Add to Cart</a>
-                    </div>
-                </div>
-
-                <!-- Hat 2 -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="assets/hat_breesy_beach_trucker.png" alt="Breesy Beach Trucker Hat">
-                        <div class="product-badge">New Arrival</div>
-                    </div>
-                    <div class="product-info">
-                        <h3>Breesy's Beach Trucker</h3>
-                        <p class="product-desc">Navy/foam trucker with Breesy silhouette and palm tree patch.</p>
-                        <div class="product-price">$30</div>
-                        <a href="#" class="btn-primary btn-small">Add to Cart</a>
-                    </div>
-                </div>
-
-                <!-- Hat 3 -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="assets/hat_breesy_fishing_dad_hat.png" alt="Breesy Fishing Dad Hat">
-                    </div>
-                    <div class="product-info">
-                        <h3>Breesy Fishing Dad Hat</h3>
-                        <p class="product-desc">Unstructured khaki olive cotton hat with fishing Breesy embroidery.</p>
-                        <div class="product-price">$28</div>
-                        <a href="#" class="btn-primary btn-small">Add to Cart</a>
-                    </div>
-                </div>
-
-                <!-- Hat 4 -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="assets/hat_breesy_tiki_hat.png" alt="Breesy Tiki Hat">
-                        <div class="product-badge">Resort Style</div>
-                    </div>
-                    <div class="product-info">
-                        <h3>Breesy's Tiki Straw Hat</h3>
-                        <p class="product-desc">Straw floppy beach hat with a custom woven Breesy patch.</p>
-                        <div class="product-price">$45</div>
-                        <a href="#" class="btn-primary btn-small">Add to Cart</a>
-                    </div>
-                </div>
-
-                <!-- Hat 5 -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="assets/hat_breesy_island_bucket_hat.png" alt="Breesy's Island Bucket Hat">
-                        <div class="product-badge">Performance</div>
-                    </div>
-                    <div class="product-info">
-                        <h3>Breesy's Island Bucket Hat</h3>
-                        <p class="product-desc">All-over Breesy's Island pattern on moisture-wicking performance fabric.</p>
-                        <div class="product-price">$35</div>
-                        <a href="#" class="btn-primary btn-small">Add to Cart</a>
                     </div>
                 </div>
             </div>
@@ -778,5 +1072,33 @@
             <p>&copy; 2026 Breesy's Island. All rights reserved. Stay Salty.</p>
         </div>
     </footer>
+
+    <!-- Cart Overlay -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <!-- Cart Drawer -->
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h3>Your Island Bag</h3>
+            <button class="cart-close" aria-label="Close cart">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty">
+                <div class="cart-empty-icon">🏝️</div>
+                <p>Your island bag is empty.</p>
+                <p style="font-size:12px;margin-top:8px;color:#bbb;">Add some gear and start living the island life.</p>
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span class="cart-total-label">Total</span>
+                <span class="cart-total-amount" id="cartTotal">$0</span>
+            </div>
+            <button class="cart-checkout-btn">Checkout</button>
+            <button class="cart-continue-btn">Continue Shopping</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
