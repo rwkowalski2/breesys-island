@@ -3,10 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Breesy's Island — Premium Island Lifestyle Apparel</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Breesy's Island — Premium Island Lifestyle Apparel | Beach & Fishing Wear</title>
+    <meta name="description" content="Premium island lifestyle apparel for those who live for the salt, the sun, and the catch. Breesy's Island — tees, resort shirts, performance fishing jerseys, swimwear, headwear, and drinkware.">
+    <meta name="keywords" content="Breesy's Island, island apparel, fishing clothing, beach wear, resort shirts, premium tees, saltwater fishing, tropical clothing">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://breesysisland.com/">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Breesy's Island — Premium Island Lifestyle Apparel">
+    <meta property="og:description" content="Premium island lifestyle apparel for those who live for the salt, the sun, and the catch.">
+    <meta property="og:image" content="https://breesysisland.com/assets/breesys_island_logo_v3.png">
+    <meta property="og:url" content="https://breesysisland.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Breesy's Island">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Breesy's Island — Premium Island Lifestyle Apparel">
+    <meta name="twitter:description" content="Escape to the island. Premium apparel for the saltwater soul.">
+    <meta name="twitter:image" content="https://breesysisland.com/assets/breesys_island_logo_v3.png">
+    
+    <!-- Preconnect & Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/breesys_island_logo_v3.png">
+    <link rel="apple-touch-icon" href="assets/breesys_island_logo_v3.png">
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -1072,6 +1098,35 @@
             <p>&copy; 2026 Breesy's Island. All rights reserved. Stay Salty.</p>
         </div>
     </footer>
+
+    <!-- Product Detail Modal -->
+    <div class="modal-overlay" id="productModal"></div>
+    <div class="modal" id="productModalContent">
+        <button class="modal-close" aria-label="Close modal">&times;</button>
+        <div class="modal-body">
+            <div class="modal-image">
+                <img id="modalProductImage" src="" alt="">
+            </div>
+            <div class="modal-info">
+                <div class="modal-badge" id="modalProductBadge"></div>
+                <h3 id="modalProductName"></h3>
+                <p class="modal-price" id="modalProductPrice"></p>
+                <p class="modal-desc" id="modalProductDesc"></p>
+                <div class="modal-actions">
+                    <button class="btn-primary btn-small btn-add-cart" id="modalAddToCart">Add to Cart</button>
+                    <button class="btn-primary btn-small btn-buy-now" id="modalBuyNow">Buy Now</button>
+                </div>
+                <div class="modal-details">
+                    <h4>Product Details</h4>
+                    <ul id="modalProductDetails">
+                        <li>Premium quality materials</li>
+                        <li>Designed in the USA</li>
+                        <li>Part of Breesy's Island Collection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Cart Overlay -->
     <div class="cart-overlay" id="cartOverlay"></div>

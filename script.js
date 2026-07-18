@@ -1,5 +1,16 @@
 // ===== Breesy's Island - Main Script =====
 
+// ===== Performance: Lazy loading images =====
+document.addEventListener('DOMContentLoaded', function() {
+    if ('loading' in HTMLImageElement.prototype) {
+        document.querySelectorAll('.product-image img, .about-image img').forEach(img => {
+            if (!img.hasAttribute('loading')) {
+                img.setAttribute('loading', 'lazy');
+            }
+        });
+    }
+});
+
 // ===== Cart System =====
 let cart = JSON.parse(localStorage.getItem('breesysCart')) || [];
 
@@ -19,7 +30,7 @@ function updateCartCount() {
 function updateCartTotal() {
     const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     const totalEl = document.getElementById('cartTotal');
-    if (totalEl) totalEl.textContent = `$${total}`;
+    if (totalEl) totalEl.textContent = '$' + total;
 }
 
 function renderCartItems() {
@@ -46,7 +57,7 @@ function renderCartItems() {
                 <div class="cart-item-name">${item.name}</div>
                 <div class="cart-item-price">$${item.price}</div>
                 <div class="cart-item-actions">
-                    <button class="qty-btn" onclick="decrementQty(${index})">−</button>
+                    <button class="qty-btn" onclick="decrementQty(${index})">-</button>
                     <span class="cart-item-qty">${item.qty}</span>
                     <button class="qty-btn" onclick="incrementQty(${index})">+</button>
                     <button class="cart-item-remove" onclick="removeFromCart(${index})">Remove</button>
@@ -70,7 +81,7 @@ function addToCart(name, price, image) {
         cart.push({ name, price, image, qty: 1 });
     }
     saveCart();
-    showToast(`${name} added to your bag!`);
+    showToast(name + ' added to your bag!');
     openCart();
 }
 
@@ -78,7 +89,7 @@ function removeFromCart(index) {
     const item = cart[index];
     cart.splice(index, 1);
     saveCart();
-    showToast(`${item.name} removed from your bag.`);
+    showToast(item.name + ' removed from your bag.');
 }
 
 function incrementQty(index) {
@@ -133,6 +144,46 @@ function showToast(message) {
         toast.classList.remove('active');
         setTimeout(() => toast.remove(), 400);
     }, 2800);
+}
+
+// ===== Product Detail Modal =====
+function openProductModal(productCard) {
+    const name = productCard.querySelector('h3').textContent;
+    const desc = productCard.querySelector('.product-desc').textContent;
+    const priceText = productCard.querySelector('.product-price').textContent;
+    const img = productCard.querySelector('.product-image img').getAttribute('src');
+    const badge = productCard.querySelector('.product-badge');
+    const badgeText = badge ? badge.textContent : '';
+    
+    document.getElementById('modalProductImage').setAttribute('src', img);
+    document.getElementById('modalProductImage').setAttribute('alt', name);
+    document.getElementById('modalProductName').textContent = name;
+    document.getElementById('modalProductPrice').textContent = priceText;
+    document.getElementById('modalProductDesc').textContent = desc;
+    
+    const badgeEl = document.getElementById('modalProductBadge');
+    if (badgeText) {
+        badgeEl.textContent = badgeText;
+        badgeEl.style.display = 'inline-block';
+    } else {
+        badgeEl.style.display = 'none';
+    }
+    
+    // Store product data for modal buttons
+    document.getElementById('modalAddToCart').dataset.name = name;
+    document.getElementById('modalAddToCart').dataset.price = priceText.replace('$', '');
+    document.getElementById('modalAddToCart').dataset.img = img;
+    document.getElementById('modalBuyNow').dataset.name = name;
+    
+    document.getElementById('productModal').classList.add('active');
+    document.getElementById('productModalContent').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeProductModal() {
+    document.getElementById('productModal').classList.remove('active');
+    document.getElementById('productModalContent').classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 // ===== Navigation =====
@@ -200,17 +251,24 @@ document.querySelector('.newsletter-form')?.addEventListener('submit', function(
     const input = this.querySelector('input');
     const email = input.value.trim();
     if (email) {
+        // Simple email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showToast('Please enter a valid email address.');
+            return;
+        }
         showToast('Welcome to the island crew! Check your email for 10% off.');
         input.value = '';
+        
+        // Analytics event tracking
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'newsletter_signup', { 'email': email });
+        }
     }
 });
 
 // ===== Stripe Payment Links =====
-// These are placeholder Stripe payment links. Replace with actual Stripe product links.
-const STRIPE_BASE_URL = 'https://buy.stripe.com/';
-
 function getStripeLink(productName) {
-    // Map product names to Stripe payment links
     const links = {
         'Island Escape Premium Tee': 'https://buy.stripe.com/test_placeholder_island_escape',
         'Island Palm Resort Shirt': 'https://buy.stripe.com/test_placeholder_resort_shirt',
@@ -225,26 +283,35 @@ function getStripeLink(productName) {
         'Coastal Vista Premium Tee': 'https://buy.stripe.com/test_placeholder_coastal',
         'Island Crest Beach Towel': 'https://buy.stripe.com/test_placeholder_towel',
         'Island Travel Mug': 'https://buy.stripe.com/test_placeholder_mug',
-        'Breesy\'s Island Kids Tee': 'https://buy.stripe.com/test_placeholder_kids',
+        "Breesy's Island Kids Tee": 'https://buy.stripe.com/test_placeholder_kids',
         'Sailfish Jump Tee': 'https://buy.stripe.com/test_placeholder_sailfish'
     };
     return links[productName] || '#';
 }
 
-// Initialize cart on load
+// ===== Initialize =====
 document.addEventListener('DOMContentLoaded', function() {
     updateCartUI();
     
-    // Add to cart buttons
+    // Product card click to open modal
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Don't open modal if clicking buttons
+            if (e.target.closest('.btn-primary, .btn-add-cart, .btn-buy-now')) return;
+            openProductModal(this);
+        });
+    });
+    
+    // Add to cart buttons (from product cards and modal)
     document.querySelectorAll('.btn-add-cart').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            const card = this.closest('.product-card');
-            const name = card.querySelector('h3').textContent;
-            const priceText = card.querySelector('.product-price').textContent;
+            const card = this.closest('.product-card') || this.closest('.modal');
+            const name = this.dataset.name || card.querySelector('h3').textContent;
+            const priceText = this.dataset.price || card.querySelector('.product-price').textContent;
             const price = parseInt(priceText.replace('$', ''));
-            const img = card.querySelector('.product-image img').getAttribute('src');
+            const img = this.dataset.img || card.querySelector('.product-image img, .modal-image img').getAttribute('src');
             addToCart(name, price, img);
         });
     });
@@ -253,8 +320,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.btn-buy-now').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            const card = this.closest('.product-card');
-            const name = card.querySelector('h3').textContent;
+            e.stopPropagation();
+            const name = this.dataset.name || this.closest('.product-card')?.querySelector('h3').textContent;
             const link = getStripeLink(name);
             if (link && link !== '#') {
                 window.open(link, '_blank');
@@ -264,9 +331,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Cart close button
-    document.querySelector('.cart-close')?.addEventListener('click', closeCart);
+    // Modal close
+    document.querySelector('.modal-close')?.addEventListener('click', closeProductModal);
+    document.getElementById('productModal')?.addEventListener('click', closeProductModal);
     document.getElementById('cartOverlay')?.addEventListener('click', closeCart);
+    document.querySelector('.cart-close')?.addEventListener('click', closeCart);
     
     // Checkout button
     document.querySelector('.cart-checkout-btn')?.addEventListener('click', function() {
@@ -280,8 +349,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Continue shopping
     document.querySelector('.cart-continue-btn')?.addEventListener('click', closeCart);
     
-    // Escape key to close cart
+    // Escape key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeCart();
+        if (e.key === 'Escape') {
+            closeCart();
+            closeProductModal();
+        }
     });
+    
+    // Track page view (Google Analytics placeholder)
+    if (typeof gtag !== 'undefined') {
+        gtag('config', 'G-XXXXXXXXXX', { 'page_title': document.title });
+    }
 });
